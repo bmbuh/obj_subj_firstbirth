@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
-#Started on: 12.03.2021
-#Last Updated: 16.04.2021
+#Started on: 25.02.2022
+#Last Updated: 28.02.2022
 
 # install.packages("lme4")
 # install.packages("survey")
@@ -35,16 +35,105 @@ library(ggstance)
 library(broom.mixed)
 library(effects)
 
-############################################################################
-# Loading data Surv2 -------------------------------------------------------
-############################################################################
 
+# Loading data surv2
 surv2 <- file.choose()
 surv2 <- readRDS(surv2)
 
+############################################################################
+# Create surv3 -------------------------------------------------------------
+############################################################################
+
+
+# -------------------------------------------------------------------------
+# Extracting emphist and partnerhist --------------------------------------
+# -------------------------------------------------------------------------
+
+
+###surv3 adds in missing partnership and employment from imputed waves
+#The DF "annual_his" and "part_his" from script 1 are needed
+
+#First employment - this includes data about employment status and part time work
+emp <- annual_his %>% 
+  dplyr::select(pidp, Wave, Spell, start_m, start_y, end_m, end_y, int_m, int_y,
+                Job_Hours, Status) %>% 
+  mutate(wave = Wave - 18) %>%
+  mutate(jbstat2 = as.character(Status)) %>% 
+  mutate(jbstat2 = recode(jbstat2,
+                         "1" = "Self-employed",
+                         "2" = "Paid employed",
+                         "3" = "Unemployed",
+                         "4" = "Retired",
+                         "5" = "Maternity leave",
+                         "6" = "Family care",
+                         "7" = "Full-time student",
+                         "8" = "Sick/disabled",
+                         "9" = "Govt training scheme",
+                         "10" = "Unpaid fam bus",
+                         "11" = "Apprenticeship",
+                         "97" = "Something else",
+                         "100" = "Paid employed",
+                         "101" = "Something else")) %>% 
+  mutate(parttime2 = Job_Hours) %>% #1 = FT, 2 = PT
+  mutate(parttime2 = ifelse(is.na(parttime2), NA, ifelse(parttime2 == 2, 1, 0))) %>% 
+  dplyr::select(-Wave, -Status, -Job_Hours)
+
+emp2 <- emp %>% 
+  select(pidp, wave, jbstat2, parttime2, start_y) %>% 
+  rename("waveyr2" = "start_y") %>% 
+  rename("waveck" = "wave")
+
+part <- part_his %>% 
+  select(pidp, status, starty) %>% 
+  mutate(status2 = as.numeric(status)) %>% 
+  mutate(status2 = ifelse(status2 == 2 | status2 == 3, "married", "cohab")) %>% 
+  rename("waveyr2" = "starty") %>% 
+  select(-status)
+
+part %>% count(hhorig)
+
+# -------------------------------------------------------------------------
+# Making surv3 ------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+
+###surv3 fixes issues due to immigrant and foreign educational attainment
 # The variable "edu_cat" does not include immigrant education
 # #This step updates the educational attainment variable
 surv3 <- surv2 %>% 
+  mutate(waveyr = wave + 2008) %>% #The following steps are done to make sure that the years from the employment file match the waves here
+  mutate(check = intdaty_dv - waveyr) %>% 
+  mutate(waveyr2 = waveyr + check) %>% 
+  mutate(check2 = intdaty_dv - waveyr) %>% 
+  mutate(waveyr2 = ifelse(is.na(waveyr2), waveyr, waveyr2)) %>% 
+  select(-check, -check2) %>% 
+  relocate("waveyr2", .after = "wave") %>%
+  #Adding in the employment histories to fill in NA
+  left_join(., emp2, by = c("pidp", "waveyr2")) %>% #join the DF "emp2" created above
+  group_by(pidp) %>% 
+  fill(jbstat2, .direction = "down") %>% #The waves got joined based on employment starting date. Since I have a emphist we can assume no change occurs until the next observation
+  distinct(wave, .keep_all = TRUE) %>% 
+  ungroup() %>% 
+  mutate(jbstat = ifelse(is.na(jbstat), jbstat2, jbstat)) %>% #replaces NA from imputed waves with known employment status
+  mutate(parttime = ifelse(is.na(parttime) & jbstat == "Paid employed", parttime2, parttime)) %>% #replaces NA from imputed waves with known parttime work
+  mutate(parttime = ifelse(jbstat == "Self-employed", 0, parttime)) %>% #since self-employment general means working hours and personal hours overlap, the job is theoretically always fulltime
+  mutate(parttime = ifelse(is.na(parttime) & jbstat == "Paid employed", "x", parttime)) %>% #The following steps are for adding parttime to imputed waves
+  mutate_at(vars(parttime), function(y) ifelse(y == "x", lag(y), y)) %>% #First observations going forward
+  mutate_at(vars(parttime), function(y) ifelse(y == "x", lead(y), y)) %>% #Remainder observations going backwards
+  mutate(parttime = ifelse(is.na(parttime), "z", ifelse(parttime == "x", NA, parttime))) %>% 
+  group_by(pidp) %>% 
+  fill(jbstat, .direction = "downup") %>% #Fills in observations where no change was seen in the emphist
+  fill(parttime, .direction = "downup") %>% 
+  ungroup() %>% 
+  mutate(parttime = ifelse(parttime == "z", NA, parttime)) %>% #Safely transforms NAs back to an NA
+  select(-waveyr, -jbstat2, -parttime2) %>% 
+  #Adding in the partnership histories
+  left_join(., part, by = c("pidp", "waveyr2")) %>% 
+  mutate(marstat = ifelse(is.na(marstat), status2, marstat)) %>%  #this removes a very small number of NA (226), meaning far less missing partnership changes in imputed waves
+  group_by(pidp) %>% 
+  distinct(wave, .keep_all = TRUE) %>% 
+  fill(marstat, .direction = "downup") %>% #It can be assumed missing NA from imputed waves were non-changes in status from the previous wave
+  ungroup() %>% 
   # filter(edu_cat != "other") %>% #I made the decision to remove other category as it is mainly people who were not raised in the UK
   mutate(worse = ifelse(finfut.num == -1, 1, 0)) %>%  #A binary variable for people who think their finances will get worse
   mutate(comf = ifelse(finnow.num > 2, 1, 0)) %>%  #Creates a binary for positive versus negative current financial stability
@@ -54,18 +143,23 @@ surv3 <- surv2 %>%
     isced97 == 3 | isced97 == 4  ~ "medium",
     isced97 == 5 | isced97 == 6  ~ "high",
     is.na(isced97) ~ "other")) %>% #Other now represents all individuals with unknown educational backgrounds
-  filter(edu != "other") #This removes 2513 observations from the DF
+  filter(edu != "other") %>% #This removes 2513 observations from the DF
+  select(-combo) %>% #Final step is redoing the "combo" variable with the updated information
+  group_by(pidp) %>% 
+  fill(parjbstat, .direction = "downup") %>% 
+  ungroup() %>% 
+  unite(combo, marstat, parjbstat, sep = "-", remove = FALSE)
 
+saveRDS(surv3, "surv3.rds")
+
+
+surv3 %>% count(combo)
 surv3 %>% count(finnow.num)
 surv3 %>% count(finnow.imp)
 surv3 %>% count(comf)
 surv3 %>% count(edu)
 surv3 %>% count(is.na(jbisco88_cc))
 
-#Create separate data sets for men and women
-#Removes "other" educational level
-survm <- surv3 %>% filter(sex == 1)
-survf <- surv3 %>% filter(sex == 2)
 
 #Descriptive statistics of the sample
 mycontrols <- tableby.control(test = FALSE)
@@ -271,10 +365,17 @@ surv4 <- surv3 %>%
   mutate(sex = as.character(sex)) %>%
   mutate(sex = recode(sex,
                       "1" = "Men",
-                      "2" = "Women"))
+                      "2" = "Women")) %>% 
+  group_by(pidp) %>% #For constant variables I can fill in missing observations
+  fill(hhorig, .direction = "updown") %>% 
+  fill(ukborn, .direction = "updown") %>%
+  fill(immigrant, .direction = "updown") %>%
+  ungroup()
 
-survm <- surv4 %>% filter(sex == "Men")
-survf <- surv4 %>% filter(sex == "Women")
+saveRDS(surv4, file = "surv4.rds")
+
+surv4m <- surv4 %>% filter(sex == "Men")
+surv4f <- surv4 %>% filter(sex == "Women")
 
 ############################################################################
 ## Testing Gompertz GLM Model ----------------------------------------------
@@ -341,11 +442,11 @@ Data_DevResid %>%
 
 baseline_men <- glm(formula = event ~ t2,
                      family = binomial(link = "logit"),
-                     data = survm)
+                     data = surv4m)
 summ(baseline_men, exp = TRUE, scale = TRUE)
 mlogit <- glm(formula = event ~ t2 + agemn + agesq + finnow.imp + finfut.imp + employed + edu,
             family = binomial(link = "logit"),
-            data = survm)
+            data = surv4m)
 summary(mlogit)
 summ(mlogit, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(mlogit, exp = T)
@@ -358,8 +459,8 @@ mlogit$aic
 
 #Deviance Residuals
 Data_DevResid_m <- tibble(Pred_Haz = predict(mlogit, type = "response"),
-                          Event = pull(survm, event),
-                          ID = pull(survm, pidp))%>%
+                          Event = pull(surv4m, event),
+                          ID = pull(surv4m, pidp))%>%
   mutate(DevRes = if_else(Event == 0, 
                           -sqrt(-2*log(1-Pred_Haz)),
                           sqrt(-2*log(Pred_Haz))))
@@ -375,7 +476,7 @@ Data_DevResid_m %>%
 #Test Age versus end of education
 mglmage <- glm(formula = event ~ agemn + agesq + finnow.imp + finfut.imp + employed + edu,
                family = binomial(link = "logit"),
-               data = survm)
+               data = surv4m)
 
 anova(mlogit, mglmage, test = "Chisq")
 
@@ -383,8 +484,8 @@ mlogit$aic
 mglmage$aic
 
 Data_DevResid_m_age <- tibble(Pred_Haz = predict(mglmage, type = "response"),
-                              Event = pull(survm, event),
-                              ID = pull(survm, pidp))%>%
+                              Event = pull(surv4m, event),
+                              ID = pull(surv4m, pidp))%>%
   mutate(DevRes = if_else(Event == 0, 
                           -sqrt(-2*log(1-Pred_Haz)),
                           sqrt(-2*log(Pred_Haz))))
@@ -403,11 +504,11 @@ Data_DevResid_m_age %>%
 
 baseline_women <- glm(formula = event ~ t2,
                      family = binomial(link = "logit"),
-                     data = survf)
+                     data = surv4f)
 summ(baseline_women, exp = TRUE, scale = TRUE)
 flogit<- glm(formula = event ~ t2 + agemn + agesq + finnow.imp + finfut.imp + employed + edu,
             family = binomial(link = "logit"),
-            data = survf)
+            data = surv4f)
 summary(flogit)
 summ(flogit, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 
@@ -420,8 +521,8 @@ flogit$aic
 
 #Deviance Residuals
 Data_DevResid_f <- tibble(Pred_Haz = predict(flogit, type = "response"),
-                          Event = pull(survf, event),
-                          ID = pull(survf, pidp))%>%
+                          Event = pull(surv4f, event),
+                          ID = pull(surv4f, pidp))%>%
   mutate(DevRes = if_else(Event == 0, 
                           -sqrt(-2*log(1-Pred_Haz)),
                           sqrt(-2*log(Pred_Haz))))
@@ -437,7 +538,7 @@ Data_DevResid_f %>%
 #Test Age versus end of education
 fglmage <- glm(formula = event ~ agemn + agesq + finnow.imp + finfut.imp + employed + edu,
                family = binomial(link = "logit"),
-               data = survf)
+               data = surv4f)
 
 anova(flogit, fglmage, test = "Chisq")
 
@@ -445,8 +546,8 @@ flogit$aic
 fglmage$aic
 
 Data_DevResid_f_age <- tibble(Pred_Haz = predict(fglmage, type = "response"),
-                              Event = pull(survf, event),
-                              ID = pull(survf, pidp))%>%
+                              Event = pull(surv4f, event),
+                              ID = pull(surv4f, pidp))%>%
   mutate(DevRes = if_else(Event == 0, 
                           -sqrt(-2*log(1-Pred_Haz)),
                           sqrt(-2*log(Pred_Haz))))
