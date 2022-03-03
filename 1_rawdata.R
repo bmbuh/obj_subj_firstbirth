@@ -76,6 +76,7 @@ j_child <- read_dta("S:/Questionnaires/UKHLS/Understanding_)Societyw1-9_SpecialL
 j_indresp <- read_dta("S:/Questionnaires/UKHLS/Understanding_)Societyw1-9_SpecialLicence/ukhls_w10/j_indresp_protect.dta")
 j_hhresp <- read_dta("S:/Questionnaires/UKHLS/Understanding_)Societyw1-9_SpecialLicence/ukhls_w10/j_hhresp_protect.dta")
 
+# table <- j_indresp %>% count(j_jbstat, j_jbterm1)
 
 #xwavedata
 xwave <- read_dta("S:/Questionnaires/UKHLS/Understanding_)Societyw1-9_SpecialLicence/ukhls_wx/xwavedat_protect.dta")
