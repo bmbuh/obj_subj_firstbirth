@@ -649,8 +649,25 @@ surv4 <- surv3 %>%
                                       "cohab-unknown", 
                                       "married-employed", 
                                       "married-non-employed", 
-                                      "married-unknown")))
+                                      "married-unknown"))) %>%
+  mutate(finnow3cat = fct_relevel(finnow3cat, c("Doing fine",
+                                                "Getting by",
+                                                "Finding it difficult"))) %>%
+  mutate(finfut.imp = fct_relevel(finfut.imp, c("Better off",
+                                              "About the same",
+                                              "Worse off"))) %>%
+  unite(empfinnow, empstat2, finnow3cat, sep = "-", remove = FALSE) %>% 
+  unite(empfinfut, empstat2, finfut.imp, sep = "-", remove = FALSE) %>%
+  mutate(worse = ifelse(finfut.imp == "Worse off", "Worse", "Same or better")) %>%
+  unite(empworse, empstat2, worse, sep = "-", remove = FALSE) %>%
+  mutate(difficult = ifelse(finnow3cat == "Finding it difficult", "Difficult", "Getting by")) %>%
+  unite(empdiff, empstat2, difficult, sep = "-", remove = FALSE) %>%
+  mutate(difficult = fct_relevel(difficult, c("Getting by",
+                                                "Difficult")))
+  
+  
 
+surv4 %>% count(difficult)
 saveRDS(surv4, file = "surv4.rds")
 
 surv4 %>% count(jbstat)
