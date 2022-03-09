@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
 #Started on: 08.03.2022
-#Last Updated: 
+#Last Updated: 09.03.2022
 
 # install.packages("interactions")
 
@@ -36,6 +36,8 @@ surv4 <- readRDS(surv4)
 surv4m <- surv4 %>% filter(sex == "Men")
 surv4f <- surv4 %>% filter(sex == "Women")
 
+surv4 %>% count(finnow.num)
+
 ###########################################################################
 # Discrete Time Hazard Model ----------------------------------------------
 ###########################################################################
@@ -46,19 +48,19 @@ surv4f <- surv4 %>% filter(sex == "Women")
 # Analysis 1 - Present Financial Situation
 ## 1. Objective employment conditions (OEC) + controls
 ## 2. OEC + present financial situation + controls + CCI
-## 3. OEC + present financial situation*edu controls + CCI
+## 3. OEC + present financial situation*edu + controls + CCI
 ## 4. Model 3 + Partner variables
 
 # Analysis 2 - Future Financial Situation
 ## 1. Objective employment conditions (OEC) + controls
 ## 2. OEC + Future financial situation + controls + CCI
-## 3. OEC + present financial situation*edu controls + CCI
+## 3. OEC + present financial situation*edu + controls + CCI
 ## 4. Model 3 + Partner variables
 
 # Analysis 3 - Present and Future Financial Situation
 ## 1. Objective employment conditions (OEC) + controls
 ## 2. OEC + Financial Situations + controls + CCI
-## 3. OEC + present financial situation*edu controls + CCI
+## 3. OEC + present/future financial situation*edu + controls + CCI
 ## 4. Model 3 + Partner variables
 
 # Analysis 4 - Income
@@ -281,14 +283,14 @@ plot_summs(a3m2m, a3m2f, exp = T)
 # Model 3. OEC * present financial situation + controls + CCI -------------
 # -------------------------------------------------------------------------
 
-a3m3m <- glm(formula = event ~ t2 + empfinnow + empfinfut + agemn + agesq + immigrant + edu + ol5cat + cci,
+a3m3m <- glm(formula = event ~ t2 + empstat2 + difficult*edu + worse*edu + agemn + agesq + immigrant + ol5cat + cci,
              family = binomial(link = "logit"),
              data = surv4m)
 summary(a3m3m)
 summ(a3m3m, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(a3m3m, exp = T)
 
-a3m3f <- glm(formula = event ~ t2 + empfinnow + empfinfut + agemn + agesq + immigrant + edu + ol5cat + cci,
+a3m3f <- glm(formula = event ~ t2 + empstat2 + difficult*edu + worse*edu + agemn + agesq + immigrant + ol5cat + cci,
              family = binomial(link = "logit"),
              data = surv4f)
 summary(a3m3f)
@@ -302,14 +304,14 @@ plot_summs(a3m3m, a3m3f, exp = T)
 # Model 4. Model 3 + Partner variables ------------------------------------
 # -------------------------------------------------------------------------
 
-a3m4m <- glm(formula = event ~ t2 + empfinnow + empfinfut + agemn + agesq + immigrant + edu + ol5cat + cci + combo,
+a3m4m <- glm(formula = event ~ t2 + empstat2 + difficult*edu + worse*edu + agemn + agesq + immigrant + ol5cat + cci + combo,
              family = binomial(link = "logit"),
              data = surv4m)
 summary(a3m4m)
 summ(a3m4m, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(a3m4m, exp = T)
 
-a3m4f <- glm(formula = event ~ t2 + empfinnow + empfinfut + agemn + agesq + immigrant + edu + ol5cat + cci + combo,
+a3m4f <- glm(formula = event ~ t2 + empstat2 + difficult*edu + worse*edu + agemn + agesq + immigrant + ol5cat + cci + combo,
              family = binomial(link = "logit"),
              data = surv4f)
 summary(a3m4f)
@@ -317,87 +319,6 @@ summ(a3m4f, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(a3m4f, exp = T)
 
 plot_summs(a3m4m, a3m4f, exp = T)
-
-
-###########################################################################
-# Predicted Probabilities -------------------------------------------------
-###########################################################################
-
-
-# Analysis 1 --------------------------------------------------------------
-
-
-#Analysis 1 Model 2 finnow
-effect_plot(a1m2m, pred = finnow3cat, interval = TRUE)
-effect_plot(a1m2f, pred = finnow3cat, interval = TRUE)
-
-a1m2 <- glm(formula = event ~ t2 + empstat2 + sex + difficult + agemn + agesq + immigrant + edu + ol5cat + cci,
-             family = binomial(link = "logit"),
-             data = surv4)
-
-#The cat_plot function allows for predicted interactions. Thus, we can see the effect of sex plotted together.
-cat_plot(a1m2, pred = difficult, modx = sex, mod2 = edu)
-  # scale_color_manual(values = c("#5a189a", "#2a9d8f")) +
-  theme_minimal()+
-  theme(legend.position = c(.9,.8), plot.title = element_text(size = 20),
-        axis.title.x = element_text(size = 15, vjust=-1), axis.title.y = element_text(size = 15), 
-        legend.key.size = unit(1, 'cm'),
-        legend.title = element_text(size = 15),
-        legend.text = element_text(size = 15),
-        axis.text = element_text(size = 15),
-        strip.text.x = element_text(size = 15)) +
-  theme(aspect.ratio = 1) +
-  labs(color = "Sex") +
-  ggtitle("Distribution of Completed Fertility", subtitle =  "BHPS") +
-  xlab("Number of Births, Completed Fertility") +
-  ylab("Count")
- # + scale_x_discrete(labels= c("four", "six", "eight"))
-
-#Analysis 1 Model 3 empostat2+finnow
-effect_plot(a1m3m, pred = empfinnow, interval = TRUE)
-effect_plot(a1m3f, pred = finnow3cat, interval = TRUE)
-
-
-a1m3 <- glm(formula = event ~ t2 + difficult + sex + agemn + agesq + immigrant + edu + ol5cat + cci,
-            family = binomial(link = "logit"),
-            data = surv4)
-
-#The cat_plot function allows for predicted interactions. Thus, we can see the effect of sex plotted together.
-cat_plot(a1m3, pred = difficult, modx = sex, mod2 = edu)
-
-         color.class = c("#5a189a", "#2a9d8f")) +
-  # coord_flip() +
-  # scale_x_discrete(labels= c("four", "six", "eight")) +
-  # scale_color_manual(values = c("#5a189a", "#2a9d8f")) +
-  theme_minimal()+
-  theme(legend.position = c(.9,.8), plot.title = element_text(size = 20),
-        axis.title.x = element_text(size = 15, vjust=-1), axis.title.y = element_text(size = 15), 
-        legend.key.size = unit(1, 'cm'),
-        legend.title = element_text(size = 15),
-        legend.text = element_text(size = 15),
-        axis.text = element_text(size = 15),
-        strip.text.x = element_text(size = 15)) +
-  theme(aspect.ratio = 1) +
-  labs(color = "Sex") +
-  ggtitle("Distribution of Completed Fertility", subtitle =  "BHPS") +
-  xlab("Number of Births, Completed Fertility") +
-  ylab("Count")
-
-
-
-
-# Analysis 2 --------------------------------------------------------------
-
-
-#Analysis 2 Model 2 finnow
-effect_plot(a2m2m, pred = finfut.imp, interval = TRUE)
-effect_plot(a2m2f, pred = finfut.imp, interval = TRUE)
-
-
-a2m2 <- glm(formula = event ~ t2 + sex + empstat2 + finfut.imp + agemn + agesq + immigrant + edu + ol5cat + cci,
-            family = binomial(link = "logit"),
-            data = surv4)
-cat_plot(a2m2, pred = finfut.imp, modx = sex)
 
 
 

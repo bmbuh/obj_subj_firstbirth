@@ -660,9 +660,9 @@ surv4 <- surv3 %>%
   unite(empfinfut, empstat2, finfut.imp, sep = "-", remove = FALSE) %>%
   mutate(worse = ifelse(finfut.imp == "Worse off", "Worse", "Same or better")) %>%
   unite(empworse, empstat2, worse, sep = "-", remove = FALSE) %>%
-  mutate(difficult = ifelse(finnow3cat == "Finding it difficult", "Difficult", "Getting by")) %>%
+  mutate(difficult = ifelse(finnow.num <= 3, "Difficult", "Fine")) %>%
   unite(empdiff, empstat2, difficult, sep = "-", remove = FALSE) %>%
-  mutate(difficult = fct_relevel(difficult, c("Getting by",
+  mutate(difficult = fct_relevel(difficult, c("Fine",
                                                 "Difficult")))
   
   
