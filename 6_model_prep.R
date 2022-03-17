@@ -613,16 +613,16 @@ surv4 <- surv3 %>%
   mutate(empstat2 = recode(empstat2,
                              "paid employment-full-time" = "full time",
                              "paid employment-part-time" = "part time",
-                             "paid employment-NA" = "paid - NA",
+                             "paid employment-NA" = "full time",
                              "self-employed-NA" = "self-employed",
                              "unemployed-NA" = "unemployment",
                              "our of the labour force-NA" = "out of LF")) %>% 
   mutate(empstat2 = fct_relevel(empstat2, c("full time",
                                             "part time",
-                                            "paid - NA",
                                             "self-employed",
                                             "unemployment",
                                             "out of LF"))) %>% 
+  # mutate(empstat2 = ifelse(empstat2 == "paid - NA", "full time", empstat2)) %>% 
   #Making the categories for ISCO88 classifications
   mutate(occlevel = ifelse(jbisco88_cc <= 0, NA, jbisco88_cc)) %>% 
   mutate(occlevel = ifelse(occlevel == 10, NA, occlevel)) %>% #The ISCO88 Code for Armed Forces is 10 - Must be removed not to confuse with the 1 digit code "1"
@@ -663,11 +663,15 @@ surv4 <- surv3 %>%
   mutate(difficult = ifelse(finnow.num <= 3, "Difficult", "Fine")) %>%
   unite(empdiff, empstat2, difficult, sep = "-", remove = FALSE) %>%
   mutate(difficult = fct_relevel(difficult, c("Fine",
-                                                "Difficult")))
+                                                "Difficult"))) %>% 
+  mutate(difficultv2 = ifelse(finnow.num <= 2, "Difficult", "Getting by")) %>%
+  mutate(difficultv2 = fct_relevel(difficultv2, c("Getting by",
+                                              "Difficult")))
   
   
 
 surv4 %>% count(difficult)
+surv4 %>% count(difficultv2)
 saveRDS(surv4, file = "surv4.rds")
 
 surv4 %>% count(jbstat)
@@ -701,7 +705,7 @@ write2html(surv4stats, "surv4stats_03-03-2022.html") #UPDATE DATE
 #Stats based on a category of obj. employment conditions
 surv4stats2 <-arsenal::tableby(empstat2 ~ sex + event + t3 + t16 + age + jbstat + finnow3cat + finfut.imp + jbsec + parttime + permcon + edu + combo + immigrant + ol5cat, data = surv4, control = mycontrols)
 summary(surv4stats2)
-write2html(surv4stats2, "surv4stats2_03-03-2022.html") #UPDATE DAT
+write2html(surv4stats2, "surv4stats2_03-03-2022.html") #UPDATE DATE
 
 # chart <- surv4 %>% count(jbstat, parttime)
 # chart2 <- surv3 %>% count(jbstat, permcon)
