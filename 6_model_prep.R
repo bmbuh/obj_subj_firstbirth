@@ -107,6 +107,8 @@ part <- part_his %>%
 # Making surv3 ------------------------------------------------------------
 # -------------------------------------------------------------------------
 
+#Section 5 - Education - Check how many others where fixed or dropped
+check <- surv2 %>% count(isced97, edu_cat)
 
 ###surv3 fixes issues due to immigrant and foreign educational attainment
 # The variable "edu_cat" does not include immigrant education
@@ -666,7 +668,11 @@ surv4 <- surv3 %>%
                                                 "Difficult"))) %>% 
   mutate(difficultv2 = ifelse(finnow.num <= 2, "Difficult", "Getting by")) %>%
   mutate(difficultv2 = fct_relevel(difficultv2, c("Getting by",
-                                              "Difficult")))
+                                              "Difficult"))) %>% 
+  unite(sexedu, sex, edu, sep = "-", remove = FALSE) %>% #For the descriptive output
+  mutate(eventfct = as.factor(event)) %>% 
+  mutate(sexedu = fct_relevel(sexedu, c("Women-low", "Women-medium", "Women-high",
+                                        "Men-low", "Men-medium", "Men-high")))
   
   
 
@@ -691,21 +697,80 @@ surv4 %>%
   geom_bar()
 
 # -------------------------------------------------------------------------
-# Descriptive statistics of the sample ------------------------------------
+# Descriptive statistics of the sample Section "5. Measures" --------------
 # -------------------------------------------------------------------------
 
 mycontrols <- tableby.control(test = FALSE)
-surv4stats <-arsenal::tableby(sex ~ event + t3 + t16 + age + jbstat + empstat2 + finnow3cat + finfut.imp + jbsec + parttime + permcon + edu + combo + immigrant + ol5cat, data = surv4, control = mycontrols)
-# labels(surv4stats) <-  c(finnow.imp = "Present Financial Outlook", finfut.imp = "Future Financial Outlook",
-#                          jbsec = "Job Security", edu = "Educational Attainment", combo = "Partnership, Partner's Job Status")
+surv4stats <-arsenal::tableby(sexedu ~ empstat2 + difficult + worse + age + immigrant + ol5cat + combo, data = surv4, control = mycontrols)
+labels(surv4stats) <-  c(sex = "Sex", eventfct = "First Birth", age = "Age",
+                         empstat2 = "Activity Status", difficult = "Present Financial Outlook", worse = "Future Financial Outlook",
+                         edu = "Educational Attainment", combo = "Partnership, Partner's Job Status", immigrant = "UK Born", ol5cat = "Occupational Class")
 summary(surv4stats)
 # write2word(surv4stats, "surv4stats.doc")
-write2html(surv4stats, "surv4stats_03-03-2022.html") #UPDATE DATE
+write2html(surv4stats, "surv4stats_21-03-2022.html") #UPDATE DATE
+write2word(surv4stats, "surv4stats_21-03-2022.docx") #UPDATE DATE
+
 
 #Stats based on a category of obj. employment conditions
 surv4stats2 <-arsenal::tableby(empstat2 ~ sex + event + t3 + t16 + age + jbstat + finnow3cat + finfut.imp + jbsec + parttime + permcon + edu + combo + immigrant + ol5cat, data = surv4, control = mycontrols)
 summary(surv4stats2)
 write2html(surv4stats2, "surv4stats2_03-03-2022.html") #UPDATE DATE
+
+# ------------------------------------------------------------------------------
+### Stats for the section "4. Data and Sample"  and "5. Measures ---------------
+# ------------------------------------------------------------------------------
+
+surv2 %>% count(edu)
+
+#Count number of individuals
+surv4stat <- surv4 %>% 
+  filter(rownum == 1)
+#Number of individuals by sex
+surv4stat %>% count(sex)
+#Number of first birth events by sex
+surv4 %>% count(event, sex)
+#Average number of observations by sex
+surv4stat2 <- surv4 %>% 
+  group_by(pidp) %>% 
+  mutate(numobs = length(rownum)) %>% 
+  ungroup() %>% 
+  group_by(sex) %>% 
+  summarise(numobsmean = mean(numobs), numobssd = sd(numobs))
+#Counts of subjective measures
+surv4 %>% count(difficult)
+
+#Number of events and the number of months post education the occur at. 
+surv4stat3 <- surv4 %>% 
+  filter(event == 1) %>% 
+  group_by(sex) %>% 
+  summarise(t3mean = mean(t3), t2sd = sd(t3))
+
+surv4 %>% 
+  filter(event == 1) %>% 
+  mutate(t3year = t3/12) %>% 
+  mutate(edu = recode(edu, "high" = "High", 
+                      "medium" = "Medium", 
+                      "low" = "Low")) %>% 
+  mutate(edu = fct_relevel(edu, c("High", "Medium", "Low"))) %>%
+  mutate(t3year = round(t3year)) %>% 
+  ggplot(aes(x = t3year, fill = edu)) +
+  geom_bar() +
+  facet_wrap(~sex) +
+  scale_fill_manual(values = c("#49B7FC", "#FF7B00", "#17D898")) +
+  theme_bw()+
+  theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
+        axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.y = element_text(size = 15),
+        legend.text = element_text(size = 15), axis.title.x = element_text(size = 15), strip.text.x = element_text(size = 15)) +
+  theme(aspect.ratio = 1) +
+  labs(fill = "Highest Education:") +
+  ggtitle("") +
+  xlab("Years since end of formal education") +
+  ylab("") +
+  ggsave("distribution_event_t3_21-03-2022.png", dpi = 300)
+
+test2 <- surv4 %>% 
+  filter(t2 >= 480)
+  
 
 # chart <- surv4 %>% count(jbstat, parttime)
 # chart2 <- surv3 %>% count(jbstat, permcon)
@@ -720,4 +785,7 @@ table <- surv4 %>%
 # mutate(cohort2 = ifelse(byr <= 1975, "<=1975", ifelse(byr >= 1990, ">=1990", "1976-1989"))) %>% 
 #   mutate(cohort2 = as.character(cohort2)) %>% 
 #   mutate(cohort2 = fct_relevel(cohort2, c("1976-1989", "<=1975", ">=1990"))) %>% 
+
+
+
 

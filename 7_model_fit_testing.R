@@ -51,12 +51,12 @@ surv4f %>% count(empstat2, event)
 # --------------------------------------------------------------------------
 
 #Creating a baseline to see the time since education and event
-baselinelogit <- glm(formula = event ~ t2,
+baselinelogit <- glm(formula = event ~ t3,
                      family = binomial(link = "logit"),
                      data = surv4)
 
 
-baselinecloglog <- glm(formula = event ~ t2,
+baselinecloglog <- glm(formula = event ~ t3,
                        family = binomial(link = "cloglog"),
                        data = surv4)
 
@@ -64,11 +64,11 @@ summary(baselinelogit)
 summary(baselinecloglog)
 #There is no difference between logit and cloglog
 summ(baselinelogit, exp = TRUE) #takes a minute to process
-#The strong relationship between t2 and event in this models
+#The strong relationship between t3 and event in this models
 #signifies that the baseline hazard is the same for all individuals ( :-) )
 
 
-testlogit <- glm(formula = event ~ t2 + sex + agemn + agesq + finnow3cat + finfut.imp + empstat + edu +combo,
+testlogit <- glm(formula = event ~ t3 + sex + agemn + agesq + finnow3cat + finfut.imp + empstat + edu +combo,
                  family = binomial(link = "logit"),
                  data = surv4)
 
@@ -108,11 +108,11 @@ Data_DevResid %>%
 # Model for men --------------------------------------------------------
 # ----------------------------------------------------------------------
 
-baseline_men <- glm(formula = event ~ t2,
+baseline_men <- glm(formula = event ~ t3,
                     family = binomial(link = "logit"),
                     data = surv4m)
 summ(baseline_men, exp = TRUE, scale = TRUE)
-mlogit <- glm(formula = event ~ t2 + agemn + agesq + finnow.imp + finfut.imp + employed + edu,
+mlogit <- glm(formula = event ~ t3 + agemn + agesq + finnow.imp + finfut.imp + employed + edu,
               family = binomial(link = "logit"),
               data = surv4m)
 summary(mlogit)
@@ -170,11 +170,11 @@ Data_DevResid_m_age %>%
 # Model for women ------------------------------------------------------
 # ----------------------------------------------------------------------
 
-baseline_women <- glm(formula = event ~ t2,
+baseline_women <- glm(formula = event ~ t3,
                       family = binomial(link = "logit"),
                       data = surv4f)
 summ(baseline_women, exp = TRUE, scale = TRUE)
-flogit<- glm(formula = event ~ t2 + agemn + agesq + finnow.imp + finfut.imp + employed + edu,
+flogit<- glm(formula = event ~ t3 + agemn + agesq + finnow.imp + finfut.imp + employed + edu,
              family = binomial(link = "logit"),
              data = surv4f)
 summary(flogit)
@@ -274,7 +274,7 @@ surv4 %>%
   summarise(event = sum(event),
             total = n()) %>%
   mutate(hazard = event/total) %>%
-  ggplot(aes(x = t2, 
+  ggplot(aes(x = t3, 
              y = log(-log(1-hazard)))) +
   geom_point() +
   geom_smooth()
@@ -284,7 +284,7 @@ surv4 %>%
 # ----------------------------------------------------------------------
 
 #A basic frailty model - has an added random individual effect
-frailty_baseline <- glmer(formula = event ~ t2 + (1|pidp),
+frailty_baseline <- glmer(formula = event ~ t3 + (1|pidp),
                           family = binomial(logit),
                           data = surv4,
                           control = glmerControl(optimizer = "bobyqa",
@@ -298,8 +298,8 @@ baselinelogit$aic
 
 
 #The similarity between the AIC in this model and the above GLM model suggest this "Basic Frailty Model" is unnecessary 
-#I cannot include agemn or agesq because there is a scaling issue between t2 and those perdictor variables - would need to be rescaled
-frailtylogit <- glmer(formula = event ~ t2 + sex + finnow.imp + finfut.imp + employed + edu + (1|pidp),
+#I cannot include agemn or agesq because there is a scaling issue between t3 and those perdictor variables - would need to be rescaled
+frailtylogit <- glmer(formula = event ~ t3 + sex + finnow.imp + finfut.imp + employed + edu + (1|pidp),
                       family = binomial(logit),
                       data = surv4,
                       control = glmerControl(optimizer = "bobyqa",
@@ -313,7 +313,7 @@ summary(frailtylogit)
 # ----------------------------------------------------------------------
 
 # 1. Kaplan-Meier Test
-kmtest <- survfit(Surv(t1, t2, event) ~ strata (sex), data = surv4, cluster = pidp)
+kmtest <- survfit(Surv(t1, t3, event) ~ strata (sex), data = surv4, cluster = pidp)
 summary(kmtest)
 plot(kmtest)
 
@@ -332,7 +332,7 @@ ggsurvplot(kmtest, size = 1,   # change line size
 
 
 # 2. Cox Proportional Hazard Model
-coxph <- coxph(formula = Surv(t1, t2, event) ~ sex + finnow.imp + finfut.imp + employed + edu, data = surv4, cluster = pidp, method = "breslow")
+coxph <- coxph(formula = Surv(t1, t3, event) ~ sex + finnow.imp + finfut.imp + employed + edu, data = surv4, cluster = pidp, method = "breslow")
 summary(coxph)
 testph <- cox.zph(coxph)
 summary(testph)
@@ -375,14 +375,14 @@ summary(testph)
 # Model 1. Objective employment conditions (OEC) + controls --------------
 # -------------------------------------------------------------------------
 
-m1m <- glm(formula = event ~ t2 + empstat2 + agemn + agesq + immigrant + edu + ol5cat,
+m1m <- glm(formula = event ~ t3 + empstat2 + agemn + agesq + immigrant + edu + ol5cat,
               family = binomial(link = "logit"),
               data = surv4m)
 summary(m1m)
 summ(m1m, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(m1m, exp = T)
 
-m1f <- glm(formula = event ~ t2 + empstat2 + agemn + agesq + immigrant + edu + ol5cat,
+m1f <- glm(formula = event ~ t3 + empstat2 + agemn + agesq + immigrant + edu + ol5cat,
            family = binomial(link = "logit"),
            data = surv4f)
 summary(m1f)
@@ -395,14 +395,14 @@ plot_summs(m1m, m1f, exp = T)
 # Model 2. OEC + Future financial situation + controls + CCI --------------
 # -------------------------------------------------------------------------
 
-m2m <- glm(formula = event ~ t2 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
+m2m <- glm(formula = event ~ t3 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
            family = binomial(link = "logit"),
            data = surv4m)
 summary(m2m)
 summ(m2m, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(m2m, exp = T)
 
-m2f <- glm(formula = event ~ t2 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
+m2f <- glm(formula = event ~ t3 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
            family = binomial(link = "logit"),
            data = surv4f)
 summary(m2f)
@@ -415,14 +415,14 @@ plot_summs(m2m, m2f, exp = T)
 # Model 3. OEC * present financial situation + controls + CCI -------------
 # -------------------------------------------------------------------------
 
-m3m <- glm(formula = event ~ t2 + empstat2*finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
+m3m <- glm(formula = event ~ t3 + empstat2*finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
            family = binomial(link = "logit"),
            data = surv4m)
 summary(m3m)
 summ(m3m, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(m3m, exp = T)
 
-m3f <- glm(formula = event ~ t2 + empstat2*finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
+m3f <- glm(formula = event ~ t3 + empstat2*finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci,
            family = binomial(link = "logit"),
            data = surv4f)
 summary(m3f)
@@ -436,14 +436,14 @@ plot_summs(m3m, m3f, exp = T)
 # Model 4. Model 3 + Partner variables ------------------------------------
 # -------------------------------------------------------------------------
 
-m4m <- glm(formula = event ~ t2 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci + combo,
+m4m <- glm(formula = event ~ t3 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci + combo,
            family = binomial(link = "logit"),
            data = surv4m)
 summary(m4m)
 summ(m4m, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(m4m, exp = T)
 
-m4f <- glm(formula = event ~ t2 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci + combo,
+m4f <- glm(formula = event ~ t3 + empstat2 + finnow3cat + agemn + agesq + immigrant + edu + ol5cat + cci + combo,
            family = binomial(link = "logit"),
            data = surv4f)
 summary(m4f)

@@ -25,20 +25,15 @@ surv4f <- surv4 %>% filter(sex == "Women")
 ###########################################################################
 # Descriptives ------------------------------------------------------------
 ###########################################################################
-surv4 <- surv4 %>% 
-  mutate(event = as.character(event))
-
-surv4 %>% count(rownum == 1, sex)
-
 
 mycontrols <- tableby.control(test = FALSE)
-surv4stats <-arsenal::tableby(sex ~ event + age + empstat2 + difficult + worse + edu + combo + immigrant + ol5cat, data = surv4, control = mycontrols)
+surv4stats <-arsenal::tableby(sex ~ eventfct + age + empstat2 + difficult + worse + edu + combo + immigrant + ol5cat, data = surv4, control = mycontrols)
 labels(surv4stats) <-  c(sex = "Sex", event = "First Birth", age = "Age",
                          empstat2 = "Activity Status", difficult = "Present Financial Outlook", worse = "Future Financial Outlook",
                          edu = "Educational Attainment", combo = "Partnership, Partner's Job Status", immigrant = "UK Born", ol5cat = "Occupational Class")
 summary(surv4stats)
 # write2word(surv4stats, "surv4stats.doc")
-write2html(surv4stats, "paastats_17-03-2022.html") #UPDATE DATE
+write2html(surv4stats, "paastats_21-03-2022.html") #UPDATE DATE
 
 
 ###
@@ -70,7 +65,7 @@ surv4 %>%
   ggtitle("") +
   xlab("Age") +
   ylab("Count") +
-  ggsave("paa_empstat_age_17-03-2022.png", dpi = 300)
+  ggsave("paa_empstat_age_21-03-2022.png", dpi = 300)
 
 ###
 # Plot - Subjective measures and education -----------------------------------------
@@ -96,7 +91,7 @@ surv4 %>%
   ggtitle("") +
   xlab("Age") +
   ylab("Count") +
-  ggsave("paa_difficult_age_17-03-2022.png", dpi = 300)
+  ggsave("paa_difficult_age_21-03-2022.png", dpi = 300)
 
 ###Future
 surv4 %>% 
@@ -119,7 +114,7 @@ surv4 %>%
   ggtitle("") +
   xlab("Age") +
   ylab("Count") +
-  ggsave("paa_worse_age_17-03-2022.png", dpi = 300)
+  ggsave("paa_worse_age_21-03-2022.png", dpi = 300)
 
 
 
@@ -134,7 +129,7 @@ surv4 <- surv4 %>%
 # -------------------------------------------------------------------------
 ### Analysis 1 Model 3 difficult*edu
 
-a1m3 <- glm(formula = event ~ t2 + empstat2 + difficult*edu*sex + agemn + agesq + immigrant + ol5cat + cci,
+a1m3 <- glm(formula = event ~ t3 + empstat2 + difficult*edu*sex + agemn + agesq + immigrant + ol5cat + cci,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -156,12 +151,12 @@ cat_plot(a1m3, pred = difficult, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.y = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15)) +
-  ggsave("paa_interaction_difficult_17-03-2022.png", dpi = 300)
+  ggsave("paa_interaction_difficult_21-03-2022.png", dpi = 300)
 
 # -------------------------------------------------------------------------
 ### Analysis 1 Model 3 difficult*edu version 2
 # 
-# a1m3v2 <- glm(formula = event ~ t2 + empstat2 + difficultv2*edu*sex + agemn + agesq + immigrant + ol5cat + cci,
+# a1m3v2 <- glm(formula = event ~ t3 + empstat2 + difficultv2*edu*sex + agemn + agesq + immigrant + ol5cat + cci,
 #             family = binomial(link = "logit"),
 #             data = surv4)
 # 
@@ -188,7 +183,7 @@ cat_plot(a1m3, pred = difficult, modx = edu, mod2 = sex,
 # -------------------------------------------------------------------------
 ### Analysis 1 Model 4 difficult*edu + combo
 
-a1m4 <- glm(formula = event ~ t2 + empstat2 + difficult*edu*sex + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
+a1m4 <- glm(formula = event ~ t3 + empstat2 + difficult*edu*sex + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -210,12 +205,12 @@ cat_plot(a1m4, pred = difficult, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.y = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15)) +
-  ggsave("paa_interaction_difficult_partner_17-03-2022.png", dpi = 300)
+  ggsave("paa_interaction_difficult_partner_21-03-2022.png", dpi = 300)
 
 # -------------------------------------------------------------------------
 #Analysis 2 Model 3 worse*edu
 
-a2m3 <- glm(formula = event ~ t2 + empstat2 + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci,
+a2m3 <- glm(formula = event ~ t3 + empstat2 + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -236,12 +231,12 @@ cat_plot(a2m3, pred = worse, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.y = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15)) +
-  ggsave("paa_interaction_worse_17-03-2022.png", dpi = 300)
+  ggsave("paa_interaction_worse_21-03-2022.png", dpi = 300)
 
 # -------------------------------------------------------------------------
 #Analysis 2 Model 4 worse*edu + partnership
 
-a2m4 <- glm(formula = event ~ t2 + empstat2 + difficult + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci + combo,
+a2m4 <- glm(formula = event ~ t3 + empstat2 + difficult + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci + combo,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -262,12 +257,12 @@ cat_plot(a2m4, pred = worse, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.y = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15)) +
-  ggsave("paa_interaction_worse_partner_17-03-2022.png", dpi = 300)
+  ggsave("paa_interaction_worse_partner_21-03-2022.png", dpi = 300)
 
 # -------------------------------------------------------------------------
 #Analysis 3 Model 4 empstat2 + worse*edu + partnership
 
-a3m4 <- glm(formula = event ~ t2 + empstat2*sex*edu + difficult + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
+a3m4 <- glm(formula = event ~ t3 + empstat2*sex*edu + difficult + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -287,7 +282,7 @@ cat_plot(a3m4, pred = empstat2, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.y = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), axis.text.x = element_text(angle = 70, hjust = 1)) +
-  ggsave("paa_empstat_subj_partner_17-03-2022.png", dpi = 300)
+  ggsave("paa_empstat_subj_partner_21-03-2022.png", dpi = 300)
 
 
 ###########################################################################

@@ -50,7 +50,7 @@ effect_plot(a1m2m, pred = difficult, interval = TRUE)
 effect_plot(a1m2f, pred = difficult, interval = TRUE)
 
 #The interaction plots require all varibles in one model
-a1m2 <- glm(formula = event ~ t2 + empstat2 + sex*difficult + agemn + agesq + immigrant + edu + ol5cat + cci,
+a1m2 <- glm(formula = event ~ t3 + empstat2 + sex*difficult + agemn + agesq + immigrant + edu + ol5cat + cci,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -66,7 +66,7 @@ effect_plot(a1m3m, pred = difficult, interval = TRUE)
 effect_plot(a1m3f, pred = difficult, interval = TRUE)
 
 
-a1m3 <- glm(formula = event ~ t2 + empstat2 + difficult*edu*sex + agemn + agesq + immigrant + ol5cat + cci,
+a1m3 <- glm(formula = event ~ t3 + empstat2 + difficult*edu*sex + agemn + agesq + immigrant + ol5cat + cci,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -100,7 +100,7 @@ effect_plot(a2m2m, pred = worse, interval = TRUE)
 effect_plot(a2m2f, pred = worse, interval = TRUE)
 
 
-a2m2 <- glm(formula = event ~ t2 + sex + empstat2 + worse + agemn + agesq + immigrant + edu + ol5cat + cci,
+a2m2 <- glm(formula = event ~ t3 + sex + empstat2 + worse + agemn + agesq + immigrant + edu + ol5cat + cci,
             family = binomial(link = "logit"),
             data = surv4)
 cat_plot(a2m2, pred = worse, modx = sex)
@@ -111,7 +111,7 @@ cat_plot(a2m2, pred = worse, modx = sex)
 effect_plot(a2m3m, pred = worse, interval = TRUE)
 effect_plot(a2m3f, pred = worse, interval = TRUE)
 
-a2m3 <- glm(formula = event ~ t2 +  empstat2 + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci,
+a2m3 <- glm(formula = event ~ t3 +  empstat2 + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -139,7 +139,7 @@ cat_plot(a2m3, pred = worse, modx = edu, mod2 = sex,
 effect_plot(a2m4m, pred = worse, interval = TRUE)
 effect_plot(a2m4f, pred = worse, interval = TRUE)
 
-a2m4 <- glm(formula = event ~ t2 + empstat2 + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci + combo,
+a2m4 <- glm(formula = event ~ t3 + empstat2 + sex*worse*edu + agemn + agesq + immigrant + ol5cat + cci + combo,
             family = binomial(link = "logit"),
             data = surv4)
 
