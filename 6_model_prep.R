@@ -578,7 +578,8 @@ surv4 <- surv3 %>%
   fill(oecdeq4, .direction = "downup") %>%
   ungroup() %>%
   group_by(wave) %>% #Grouping by waves ensures that the quintiles are created inside the same year
-  mutate(incquin = quant(oecdeq4)) %>%
+  mutate(incquin = quant(oecdeq4),
+         incquin = as.character(incquin)) %>%
   ungroup() %>%
   mutate(sex = as.character(sex)) %>%
   mutate(sex = recode(sex,
@@ -696,7 +697,12 @@ surv4 <- surv3 %>%
   mutate(agedummyU25 = ifelse(age < 25, 1, 0), # 1 = less than 25
          agedummyU30 = ifelse(age < 30, 1, 0), # 1 = less than 30
          agedummyU35 = ifelse(age < 35, 1, 0), # 1 = less than 35
-         agedummyU40 = ifelse(age < 40, 1, 0)) # 1 = less than 40
+         agedummyU40 = ifelse(age < 40, 1, 0)) %>% # 1 = less than 40
+  mutate(edunum = recode(edu, #This is need in the AME (script 10) to create subsamples by education
+                         "low" = "1",
+                         "medium" = "2",
+                         "high" = "3"),
+         edunum = as.numeric(edunum))
   
 test <- surv4 %>%
   select(pidp, wave, empstat2, empstat_t1, oecdeq4, incquin)

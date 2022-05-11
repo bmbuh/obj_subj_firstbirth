@@ -328,8 +328,8 @@ baselinelogit$aic
 #The similarity between the AIC in this model and the above GLM model suggest this "Basic Frailty Model" is unnecessary 
 #I cannot include agemn or agesq because there is a scaling issue between t3 and those perdictor variables - would need to be rescaled
 frailtylogit <- glmer(formula = event ~ t3 + sex + finnow.imp + finfut.imp + employed + edu + (1|pidp),
-                      family = binomial(logit),
                       data = surv4,
+                      family = binomial,
                       control = glmerControl(optimizer = "bobyqa",
                                              optCtrl = list(maxfun = 2e5))) #This is to control for the warning "Model is nearly unidentifiable"
 
