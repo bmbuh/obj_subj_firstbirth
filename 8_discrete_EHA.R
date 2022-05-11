@@ -113,7 +113,7 @@ plot_summs(a1m2m, a1m2f, exp = T)
 # Model 3. OEC * present financial situation + controls + CCI -------------
 # -------------------------------------------------------------------------
 
-a1m3m <- glm(formula = event ~ t3 + empstat2 + difficult*edu + agemn + agesq + immigrant + ol5cat + cci,
+a1m3m <- glm(formula = event ~ t3 + empstat2 + difficult/edu + agemn + agesq + immigrant + ol5cat + cci,
            family = binomial(link = "logit"),
            data = surv4m)
 summary(a1m3m)

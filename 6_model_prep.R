@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
 #Started on: 25.02.2022
-#Last Updated: 03.03.2022
+#Last Updated: 11.05.2022
 
 # install.packages("lme4")
 # install.packages("survey")
@@ -551,11 +551,20 @@ surv3 %>%
 # Cleaning DF -------------------------------------------------------------
 ############################################################################
 
-# Function for latter extracting first digit
+# Function for later extracting first digit
 getFirstDigit <- function(x) {
   floor(x / (10 ^ floor(log10(x))))
 }
 
+# Function for later creating income quintiles
+quant <- function(inc) {
+  breaks <- quantile(inc, probs = seq(0, 1, .2), na.rm = TRUE)
+  index <- findInterval(inc, breaks, rightmost.closed = TRUE, all.inside = TRUE)
+}
+
+# Household Income script variable extraction
+hhinc2 <- hhinc %>%
+  select(pidp, wave, oecdeq4) #I selected net hh income - hb adj. & ind/hh deductions, OECD equalized
 
 #remove columns that are not needed in the analysis - keep this as the final variable deciding location
 surv4 <- surv3 %>%
@@ -564,6 +573,13 @@ surv4 <- surv3 %>%
                 jbstat, employed, permcon, jbhrs, parttime, jbot, priv, jbpl,
                 finnow.imp, finfut.imp, cci, jbsec,
                 marstat, parjbstat, combo) %>%
+  left_join(., hhinc2, by = c("pidp", "wave")) %>%
+  group_by(pidp) %>%
+  fill(oecdeq4, .direction = "downup") %>%
+  ungroup() %>%
+  group_by(wave) %>% #Grouping by waves ensures that the quintiles are created inside the same year
+  mutate(incquin = quant(oecdeq4)) %>%
+  ungroup() %>%
   mutate(sex = as.character(sex)) %>%
   mutate(sex = recode(sex,
                       "1" = "Men",
@@ -672,29 +688,40 @@ surv4 <- surv3 %>%
   unite(sexedu, sex, edu, sep = "-", remove = FALSE) %>% #For the descriptive output
   mutate(eventfct = as.factor(event)) %>% 
   mutate(sexedu = fct_relevel(sexedu, c("Women-low", "Women-medium", "Women-high",
-                                        "Men-low", "Men-medium", "Men-high")))
+                                        "Men-low", "Men-medium", "Men-high"))) %>%
+  #Making new test variables for empstat at t-1 and age groups
+  group_by(pidp) %>%
+  mutate(empstat_t1 = lag(empstat2, n = 1L, default = NA)) %>% #lagged t-1 empstat2
+  ungroup() %>%
+  mutate(agedummyU25 = ifelse(age < 25, 1, 0), # 1 = less than 25
+         agedummyU30 = ifelse(age < 30, 1, 0), # 1 = less than 30
+         agedummyU35 = ifelse(age < 35, 1, 0), # 1 = less than 35
+         agedummyU40 = ifelse(age < 40, 1, 0)) # 1 = less than 40
   
-  
-
-surv4 %>% count(difficult)
-surv4 %>% count(difficultv2)
+test <- surv4 %>%
+  select(pidp, wave, empstat2, empstat_t1, oecdeq4, incquin)
+#   
+# 
+# surv4 %>% count(difficult)
+# surv4 %>% count(difficultv2)
+# surv4 %>% count(is.na(oecdeq4)) #There are 4154 NA in the hhinc variable (resolved using imputation, without 76 observations)
 saveRDS(surv4, file = "surv4.rds")
-
-surv4 %>% count(jbstat)
-surv4 %>% count(empstat)
-surv4 %>% count(empstat2)
-surv4 %>% count(occlevel)
-surv4 %>% count(ol5cat)
-
-table1 <- surv4 %>% count(empstat2, ol5cat)
-table2 <- surv4 %>% count(empstat2, permcon)
-table3 <- surv4 %>% count(empstat2, pt2)
-
-surv4 %>% 
-  mutate(pt2 = as.character(pt2)) %>% 
-  filter(!is.na(pt2)) %>% 
-  ggplot(aes(x = agemn, fill = pt2), position = fill) +
-  geom_bar()
+# 
+# surv4 %>% count(jbstat)
+# surv4 %>% count(empstat)
+# surv4 %>% count(empstat2)
+# surv4 %>% count(occlevel)
+# surv4 %>% count(ol5cat)
+# 
+# table1 <- surv4 %>% count(empstat2, ol5cat)
+# table2 <- surv4 %>% count(empstat2, permcon)
+# table3 <- surv4 %>% count(empstat2, pt2)
+# 
+# surv4 %>% 
+#   mutate(pt2 = as.character(pt2)) %>% 
+#   filter(!is.na(pt2)) %>% 
+#   ggplot(aes(x = agemn, fill = pt2), position = fill) +
+#   geom_bar()
 
 # -------------------------------------------------------------------------
 # Descriptive statistics of the sample Section "5. Measures" --------------

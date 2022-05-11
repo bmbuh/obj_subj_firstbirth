@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
 #Started on: 25.02.2022
-#Last Updated: 
+#Last Updated: 11.05.2021
 
 
 library(tidyverse)
@@ -118,7 +118,7 @@ test <- a_hhresp %>%
 
 #Sorting out needed variables from indresp
 #Changes in these lists allow for much quick adding and subtracting variables
-wave_var_inc <- c( "hidp", "fihhmnnet1_dv", "fihhmnnet3_dv", "fihhmnnet4_dv")
+wave_var_inc <- c( "hidp", "fihhmnnet1_dv", "fihhmnnet3_dv", "fihhmnnet4_dv", "ieqmoecd_dv")
 
 
 #Add the wave prefix to the variable list
@@ -219,7 +219,21 @@ str(hh_sample)
 
 
 hh_inc <- 
-  left_join(inc_sample, hh_sample, by = c("hidp", "wave")) %>% 
-  mutate(test = ifelse(is.na(fihhmnnet4_dv), 1, 0))
+  left_join(inc_sample, hh_sample, by = c("hidp", "wave")) %>%
+  mutate(test = ifelse(is.na(fihhmnnet4_dv), 1, 0),
+         oecdeq1 = fihhmnnet1_dv/ieqmoecd_dv,
+         oecdeq3 = fihhmnnet3_dv/ieqmoecd_dv,
+         oecdeq4 = fihhmnnet4_dv/ieqmoecd_dv)
+
+hh_inc %>% count(test) #There are 2001 observations with missing hhinc data
+
+summary(hh_inc$oecdeq4) #There are some strong outlines
+hh_inc %>%
+  filter(oecdeq4 >= -1000, oecdeq4 <=5000) %>% #Remove very large outliers to see distribution
+  ggplot(aes(x = oecdeq4)) +
+  geom_histogram(binwidth = 200, color = "black", size = 1)
+  ggsave("hh_inc_oecdeq4_distribution_S4_11-05-2022.png", dpi = 300)
+#The distribution is positively skewed around the median 1405 pounds/month
+
 
 saveRDS(hh_inc, "hhinc.rds")

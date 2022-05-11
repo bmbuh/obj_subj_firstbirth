@@ -1,9 +1,10 @@
 #Coded by: Brian Buh
 #Started on: 09.03.2022
-#Last Updated: 
+#Last Updated: 04.05.2022
 
 # install.packages("margins")
-install.packages("modelsummary")
+# install.packages("modelsummary")
+# install.packages("mfx")
 
 library(margins)
 library(data.table)
@@ -17,6 +18,7 @@ library(effects)
 library(interactions)
 library(stargazer)
 library(modelsummary)
+library(mfx)
 
 #Load data surv4
 surv4 <- file.choose()
@@ -24,6 +26,64 @@ surv4 <- readRDS(surv4)
 
 surv4m <- surv4 %>% filter(sex == "Men")
 surv4f <- surv4 %>% filter(sex == "Women")
+
+testsurv4 <- surv4 %>%
+  mutate(edunum = recode(edu,
+                         "low" = "1",
+                         "medium" = "2",
+                         "high" = "3"),
+         edunum = as.numeric(edunum))
+
+testsurv4m <- testsurv4 %>% filter(sex == "Men")
+testsurv4f <- testsurv4 %>% filter(sex == "Women")
+
+###########################################################################
+# Test 1 --------------------------------------------------------------
+###########################################################################
+
+example <- testm <- glm(formula = event ~ t3 + empstat2*edu + difficult*edu,
+                        family = binomial(link = "logit"),
+                        data = testsurv4m)
+mexample <- margins(example)
+summary(mexample)
+
+
+
+testm <- glm(formula = event ~ t3 + empstat2 + difficult*edu + agemn + agesq + immigrant + ol5cat + cci,
+             family = binomial(link = "logit"),
+             data = testsurv4m)
+summary(testm)
+cplot(testm, "empstat2")
+cplot(testm, "edu")
+
+mtestm <- margins(testm, at = list(edu))
+summary(mtestm)
+plot(mtestm)
+
+
+#logitmfx
+
+# test2m <- logitmfx(formula = event ~ t3 + empstat2 + difficult*edu + agemn + agesq + immigrant + ol5cat + cci,
+#                    data = surv4m)
+# summary(test2m)
+
+
+
+testf <- glm(formula = event ~ t3 + empstat2 + difficult*edunum + agemn + agesq + immigrant + ol5cat + cci,
+             family = binomial(link = "logit"),
+             data = testsurv4f)
+summary(testf)
+
+mtestf <- margins(testf, at = list(edunum = 1:3))
+summary(mtestf)
+plot(mtestf)
+cplot(testf, "empstat2")
+
+#modelsummary gives me AME output (as matched with the summary command)
+test1 <- list(mtestm, mtestf)
+modelsummary(test1, output = "test1.html", stars = TRUE)
+
+
 
 ###########################################################################
 # Analysis 1 --------------------------------------------------------------
@@ -57,7 +117,7 @@ cplot(a1m4m, "combo")
 
 #modelsummary gives me AME output (as matched with the summary command)
 a1modm <- list(ma1m1m,ma1m2m,ma1m3m,ma1m4m)
-modelsummary(a1modm, output = "testm.html", stars = TRUE)
+modelsummary(a1modm, output = "testm.html", stars = TRUE) #why don't the interactions appear?
 
 # -------------------------------------------------------------------------
 # Analysis 1 Women --------------------------------------------------------

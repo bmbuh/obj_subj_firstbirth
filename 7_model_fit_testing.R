@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
 #Started on: 02.03.2022
-#Last Updated: 08.03.2022
+#Last Updated: 11.05.2022
 
 library(data.table)
 library(padr)
@@ -40,6 +40,34 @@ surv4f <- surv4 %>% filter(sex == "Women")
 
 surv4m %>% count(empstat2, event)
 surv4f %>% count(empstat2, event)
+
+
+
+###########################################################################
+# Variable correlation ----------------------------------------------------
+###########################################################################
+
+#Testing to see if worse and difficult correlate
+### Chi-squared test http://www.sthda.com/english/wiki/chi-square-test-of-independence-in-r
+chisq <- chisq.test(table(surv4$difficult, surv4$worse))
+chisq$observed
+round(chisq$expected,3)
+library(corrplot)
+corrplot(chisq$residuals, is.cor = FALSE)
+#This clearly shows that a "worse" future is strongly positive correlated with difficult and strongly negatively correlated with fine
+
+# Contribution in percentage (%)
+contrib <- 100*chisq$residuals^2/chisq$statistic
+round(contrib, 3)
+# Visualize the contribution
+corrplot(contrib, is.cor = FALSE)
+# printing the p-value
+chisq$p.value
+# printing the observed/expected numbers
+chisq$observed
+chisq$expected
+# printing the mean
+chisq$estimate
 
 ###########################################################################
 # Model Fit Testing -------------------------------------------------------
