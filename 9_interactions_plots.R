@@ -1,31 +1,31 @@
 #Coded by: Brian Buh
 #Started on: 09.03.2022
-#Last Updated: 
+#Last Updated: 12.05.2022
 
-library(data.table)
-library(padr)
+# library(data.table)
+# library(padr)
 library(tidyverse)
-library(haven)
-library(lubridate)
-library(arsenal)
-library(zoo)
-library(survival)
-library(survminer)
-library(survPen)
-library(flexsurv)
-library(coxme)
-library(stargazer)
-library(texreg)
-library(forestplot)
-library(sjPlot)
-library(janitor)
-library(lme4)
-library(survey)
-library(jtools)
-library(ggstance)
-library(broom.mixed)
-library(effects)
-library(interactions)
+# library(haven)
+# library(lubridate)
+# library(arsenal)
+# library(zoo)
+# library(survival)
+# library(survminer)
+# library(survPen)
+# library(flexsurv)
+# library(coxme)
+# library(stargazer)
+# library(texreg)
+# library(forestplot)
+library(sjPlot) #for using the plot_model function
+# library(janitor)
+# library(lme4)
+# library(survey)
+# library(jtools)
+# library(ggstance)
+# library(broom.mixed)
+# library(effects)
+# library(interactions)
 
 #Load data surv4
 surv4 <- file.choose()
@@ -49,7 +49,7 @@ surv4f <- surv4 %>% filter(sex == "Women")
 effect_plot(a1m2m, pred = difficult, interval = TRUE)
 effect_plot(a1m2f, pred = difficult, interval = TRUE)
 
-#The interaction plots require all varibles in one model
+#The interaction plots require all variables in one model
 a1m2 <- glm(formula = event ~ t3 + empstat2 + sex*difficult + agemn + agesq + immigrant + edu + ol5cat + cci,
             family = binomial(link = "logit"),
             data = surv4)
@@ -162,6 +162,39 @@ cat_plot(a2m4, pred = worse, modx = edu, mod2 = sex,
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15)) +
   ggsave("paper1.1_interaction_worse_partner_08-03-2022.png", dpi = 300)
 
+
+
+###########################################################################
+# Testing 12.05.2022 ------------------------------------------------------
+###########################################################################
+
+#The terms of interest MUST be interacted or the difference won't be plotted correct
+a1m2 <- glm(formula = event ~ t3 + empstat2*sex*edu + sex*difficult*edu + agemn + agesq + ol5cat + cci,
+            family = binomial(link = "logit"),
+            data = surv4)
+plot_model(a1m2, type = "pred", terms = c("empstat2", "edu", "sex"))
+plot_model(a1m2, type = "pred", terms = c("difficult", "edu", "sex"))
+
+a1m3 <- glm(formula = event ~ t3 + empstat2*sex*edu + difficult*sex*edu + agemn + agesq + ol5cat + cci + combo*sex*edu,
+            family = binomial(link = "logit"),
+            data = surv4)
+plot_model(a1m3, type = "pred", terms = c("empstat2", "edu", "sex"))
+plot_model(a1m3, type = "pred", terms = c("difficult", "edu", "sex"))
+plot_model(a1m3, type = "pred", terms = c("combo", "edu", "sex"))
+
+
+a2m2 <- glm(formula = event ~ t3 + empstat2*sex*edu + worse*sex*edu + agemn + agesq + ol5cat + cci,
+            family = binomial(link = "logit"),
+            data = surv4)
+plot_model(a2m2, type = "pred", terms = c("empstat2", "edu", "sex"))
+plot_model(a2m2, type = "pred", terms = c("worse", "edu", "sex"))
+
+a2m3 <- glm(formula = event ~ t3 + empstat2*sex*edu + worse*sex*edu + agemn + agesq + ol5cat + cci + combo*sex*edu,
+            family = binomial(link = "logit"),
+            data = surv4)
+plot_model(a2m3, type = "pred", terms = c("empstat2", "edu", "sex"))
+plot_model(a2m3, type = "pred", terms = c("worse", "edu", "sex"))
+plot_model(a2m3, type = "pred", terms = c("combo", "edu", "sex"))
 
 
 

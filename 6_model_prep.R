@@ -579,12 +579,24 @@ surv4 <- surv3 %>%
   ungroup() %>%
   group_by(wave) %>% #Grouping by waves ensures that the quintiles are created inside the same year
   mutate(incquin = quant(oecdeq4),
-         incquin = as.character(incquin)) %>%
+         incquin = as.character(incquin),
+         incquin = recode(incquin,
+                          "1" = "Fifth",
+                          "2" = "Fourth",
+                          "3" = "Third",
+                          "4" = "Second",
+                          "5" = "First"),
+         incquin = fct_relevel(incquin, c("First", 
+                                          "Second", 
+                                          "Third", 
+                                          "Fourth", 
+                                          "Fifth"))) %>%
   ungroup() %>%
   mutate(sex = as.character(sex)) %>%
   mutate(sex = recode(sex,
                       "1" = "Men",
                       "2" = "Women")) %>% 
+  mutate(immigrant = as.character(immigrant)) %>%
   # Alternative time variable - months since age 16
   mutate(t16 = agemn - 192) %>% 
   relocate("t16", .after = "event") %>%
@@ -706,6 +718,7 @@ surv4 <- surv3 %>%
   
 test <- surv4 %>%
   select(pidp, wave, empstat2, empstat_t1, oecdeq4, incquin)
+surv4 %>% count(immigrant)
 #   
 # 
 # surv4 %>% count(difficult)
