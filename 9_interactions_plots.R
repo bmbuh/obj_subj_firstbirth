@@ -168,11 +168,52 @@ cat_plot(a2m4, pred = worse, modx = edu, mod2 = sex,
 # Testing 12.05.2022 ------------------------------------------------------
 ###########################################################################
 
+#! There is the simple issue that "plot_model" was not built to recognize factor level
+# To solve this, I created a education variable called "edualpha" where high = c, medium = b, low = a (script 6)
+
 #The terms of interest MUST be interacted or the difference won't be plotted correct
-a1m2 <- glm(formula = event ~ t3 + empstat2*sex*edu + sex*difficult*edu + agemn + agesq + ol5cat + cci,
+a1m2 <- glm(formula = event ~ t3 + empstat2*sex*edu + sex*difficult*edu + agemn + agesq + ol5cat + cci + immigrant,
             family = binomial(link = "logit"),
             data = surv4)
-plot_model(a1m2, type = "pred", terms = c("empstat2", "edu", "sex"))
+summary(margins(a1m2))
+
+cat_plot(a1m2, pred = empstat2, modx = edu, mod2 = sex,
+         point.size = 2,
+         line.thickness = 0.8,
+         geom.alpha = 1,
+         dodge.width = 0.25,
+         errorbar.width = 0.25,
+         modx.values = c("high", "medium", "low"),
+         pred.values = c("out of LF", "unemployment", "self-employed", "part time", "full time"),
+         # pred.labels = c("Same or better", "Worse"),
+         modx.labels = c("High", "Medium", "Low"),
+         mod2.labels = c("Men", "Women"),
+         x.label = "",
+         y.label = "Pr(Conceiving a First Child)",
+         legend.main = "Education") +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
+        axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.x = element_text(size = 15),
+        legend.text = element_text(size = 15), strip.text.x = element_text(size = 15)) + 
+  coord_flip()
+# set_theme()
+plot_model(a1m2, type = "pred", terms = c("empstat2", "edu", "sex"),
+           group.terms = c(2,3,1))
+
+
+# +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
+        axis.text = element_text(size = 15), legend.title = element_text(size = 15), axis.title.y = element_text(size = 15),
+        legend.text = element_text(size = 15), strip.text.x = element_text(size = 15)) +
+  scale_x_discrete(color = c("high", "medium", "low"))
+
+# +
+  guides(color = guide_legend(c("high", "medium", "low")))
+  # scale_color_discrete(labels = c("High", "Medium", "Low"))
+  
+#The cat_plot function allows for predicted interactions. Thus, we can see the effect of sex plotted together.
+# cat_plot(a1m2, pred = empstat2, modx = edu, mod2 = "sex") # I don't love the catplot output...
 plot_model(a1m2, type = "pred", terms = c("difficult", "edu", "sex"))
 
 a1m3 <- glm(formula = event ~ t3 + empstat2*sex*edu + difficult*sex*edu + agemn + agesq + ol5cat + cci + combo*sex*edu,

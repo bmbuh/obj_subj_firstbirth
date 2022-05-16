@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
 #Started on: 25.02.2022
-#Last Updated: 11.05.2022
+#Last Updated: 16.05.2022
 
 # install.packages("lme4")
 # install.packages("survey")
@@ -562,7 +562,7 @@ quant <- function(inc) {
   index <- findInterval(inc, breaks, rightmost.closed = TRUE, all.inside = TRUE)
 }
 
-# Household Income script variable extraction
+# Household Income script variable extraction, available from script 4
 hhinc2 <- hhinc %>%
   select(pidp, wave, oecdeq4) #I selected net hh income - hb adj. & ind/hh deductions, OECD equalized
 
@@ -596,7 +596,7 @@ surv4 <- surv3 %>%
   mutate(sex = recode(sex,
                       "1" = "Men",
                       "2" = "Women")) %>% 
-  mutate(immigrant = as.character(immigrant)) %>%
+  mutate(immigrant = as.numeric(immigrant)) %>% #the plot_model function in script 9 is pick about this for some reason
   # Alternative time variable - months since age 16
   mutate(t16 = agemn - 192) %>% 
   relocate("t16", .after = "event") %>%
@@ -673,7 +673,6 @@ surv4 <- surv3 %>%
                                          "low-skilled blue collar",
                                          # "armed-forces",
                                          "no info"))) %>%
-  mutate(immigrant = as.character(immigrant)) %>%
   mutate(combo = fct_relevel(combo, c("single-unknown", 
                                       "cohab-employed", 
                                       "cohab-non-employed", 
@@ -714,11 +713,16 @@ surv4 <- surv3 %>%
                          "low" = "1",
                          "medium" = "2",
                          "high" = "3"),
-         edunum = as.numeric(edunum))
+         edunum = as.numeric(edunum),
+         edualpha = recode(edu, #This is need in Script 9 for plot_model
+                             "low" = "a",
+                             "medium" = "b",
+                             "high" = "c"))
   
 test <- surv4 %>%
   select(pidp, wave, empstat2, empstat_t1, oecdeq4, incquin)
-surv4 %>% count(immigrant)
+surv4 %>% count(edualpha)
+str(surv4)
 #   
 # 
 # surv4 %>% count(difficult)
@@ -747,13 +751,14 @@ saveRDS(surv4, file = "surv4.rds")
 # -------------------------------------------------------------------------
 
 mycontrols <- tableby.control(test = FALSE)
-surv4stats <-arsenal::tableby(sexedu ~ empstat2 + difficult + worse + age + immigrant + ol5cat + combo, data = surv4, control = mycontrols)
+surv4stats <-arsenal::tableby(sexedu ~ empstat2 + difficult + worse + age + immigrant + ol5cat + combo + incquin, data = surv4, control = mycontrols)
 labels(surv4stats) <-  c(sex = "Sex", eventfct = "First Birth", age = "Age",
                          empstat2 = "Activity Status", difficult = "Present Financial Outlook", worse = "Future Financial Outlook",
-                         edu = "Educational Attainment", combo = "Partnership, Partner's Job Status", immigrant = "UK Born", ol5cat = "Occupational Class")
+                         edu = "Educational Attainment", combo = "Partnership, Partner's Job Status", immigrant = "UK Born",
+                         ol5cat = "Occupational Class", incquin = "Income Quintiles")
 summary(surv4stats)
 # write2word(surv4stats, "surv4stats.doc")
-write2html(surv4stats, "surv4stats_21-03-2022.html") #UPDATE DATE
+write2html(surv4stats, "surv4stats_16-05-2022.html") #UPDATE DATE
 write2word(surv4stats, "surv4stats_21-03-2022.docx") #UPDATE DATE
 
 
