@@ -2,6 +2,8 @@
 #Started on: 09.03.2022
 #Last Updated: 12.05.2022
 
+##NOTE: CHANGE "fINDING IT DIFFICULT" TO "dIFFCULT'
+
 # install.packages("margins")
 # install.packages("modelsummary")
 # install.packages("mfx")
