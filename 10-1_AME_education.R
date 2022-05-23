@@ -23,7 +23,6 @@ surv4m <- surv4 %>% filter(sex == "Men")
 surv4f <- surv4 %>% filter(sex == "Women")
 
 
-
 ###########################################################################
 # Subsetting Education ----------------------------------------------------
 ###########################################################################
@@ -53,56 +52,85 @@ surv4fhigh <- surv4f %>% filter(edu == "high")
 
 
 # -------------------------------------------------------------------------
-# Education Subset - Analysis 1 Model 3 -----------------------------------
+# Education Sub samples ---------------------------------------------------
+# -------------------------------------------------------------------------
+
+# I create separate samples for each 
+## All Analysis are sex-specific
+### I look only at the models with partnership as it is clear that partnership has an important mediating effect
+### However, after adding partnership, it lowers predicted probabilities but doesn't change th shape of relationship
+
+# Analysis 3 - Women Present Financial Situation
+## 1. OEC + Present financial situation + controls + CCI + Partner variables
+## 2. Model 1 + Income Quintile
+
+# Analysis 4 - Women Future Financial Situation
+## 1. OEC + Future financial situation + controls + CCI + Partner variables
+## 2. Model 1 + Income Quintile
+
+# Analysis 5 - Men Present Financial Situation
+## 1. OEC + Present financial situation + controls + CCI + Partner variables
+## 2. Model 1 + Income Quintile
+
+# Analysis 6 - Men Future Financial Situation
+## 1. OEC + Future financial situation + controls + CCI + Partner variables
+## 2. Model 1 + Income Quintile
+
+###########################################################################
+# Analysis ----------------------------------------------------------------
+###########################################################################
+
+# -------------------------------------------------------------------------
+# Education Subset - Analysis 3 Women -------------------------------------
 # -------------------------------------------------------------------------
 
 #Low Education
-##Men
-ma1m3mlow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
-                         family = binomial(link = "logit"),
-                         data = surv4mlow))
-summary(ma1m3mlow)
-
 ##Women
-ma1m3flow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
+###Model 1
+ma3m1flow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
                          family = binomial(link = "logit"),
                          data = surv4flow))
-summary(ma1m3flow)
+summary(ma3m1flow)
+###Model 2
+ma3m2flow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                         family = binomial(link = "logit"),
+                         data = surv4flow))
+summary(ma3m2flow)
 
 #Medium Education
-##Men
-ma1m3mmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
-                            family = binomial(link = "logit"),
-                            data = surv4mmedium))
-summary(ma1m3mmedium)
-
 ##Women
-ma1m3fmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
+###Model 1
+ma3m1fmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
                             family = binomial(link = "logit"),
                             data = surv4fmedium))
-summary(ma1m3fmedium)
+summary(ma3m1fmedium)
+###Model 2
+ma3m2fmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                         family = binomial(link = "logit"),
+                         data = surv4fmedium))
+summary(ma3m2fmedium)
 
 #High Education
-##Men
-ma1m3mhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
-                          family = binomial(link = "logit"),
-                          data = surv4mhigh))
-summary(ma1m3mhigh)
-
 ##Women
-ma1m3fhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
-                          family = binomial(link = "logit"),
-                          data = surv4fhigh))
-summary(ma1m3fhigh)
+###Model 1
+ma3m1fhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
+                            family = binomial(link = "logit"),
+                            data = surv4fhigh))
+summary(ma3m1fhigh)
+###Model 2
+ma3m2fhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                            family = binomial(link = "logit"),
+                            data = surv4fhigh))
+summary(ma3m2fhigh)
 
 #Output
-a1modedu <- list(ma1m3mlow, ma1m3mmedium, ma1m3mhigh, ma1m3flow, ma1m3fmedium, ma1m3fhigh)
-cm1 <- c("t3" = "Time since Education",
+a3modedu <- list(ma3m1flow,ma3m2flow,ma3m1fmedium,ma3m2fmedium,ma3m1fhigh,ma3m2fhigh)
+cm3 <- c("t3" = "Time since Education",
          "empstat2part time" = "Part-time",
          "empstat2self-employed" = "Self-employed",
          "empstat2unemployment" = "Unemployment",
          "empstat2out of LF" = "Out of the LF",
-         "difficultDifficult" = "Finding it difficult",
+         "difficultDifficult" = "Difficult",
          # "worseWorse" = "Worse off",
          "edulow" = "Low",
          "edumedium" = "Medium",
@@ -113,136 +141,146 @@ cm1 <- c("t3" = "Time since Education",
          "agemn" = "Age in Months",
          "agesq" = "Age Squared",
          "immigrant1"  = "Immigrant",
+         "cci" = "CCI",
          "combocohab-employed" = "Cohab - Employed",
          "combocohab-non-employed" = "Cohab - Non-employed",
          "combocohab-unknown" = "Cohab - Unknown",
          "combomarried-employed" = "Married - Employed",
          "combomarried-non-employed" = "Married - Non-employed",
          "combomarried-unknown" = "Married - Unknown",
-         "cci" = "CCI")
-modelsummary(a1modedu, coef_map = cm1, output = "A1diff_edusubset_AME_S10-1_15-05-2022.html", stars = TRUE)
+         "incquinSecond" = "Second Quintile",
+         "incquinThird" = "Third Quintile",
+         "incquinFourth" = "Fourth Quintile",
+         "incquinFifth" = "Fifth Quintile")
+modelsummary(a3modedu, coef_map = cm3, output = "A3diff_womenedusubset_AME_S10-1_23-05-2022.html", stars = TRUE)
 
 # -------------------------------------------------------------------------
-# Education Subset - Analysis 2 Model 3 -----------------------------------
-# -------------------------------------------------------------------------
-
-#Low Education
-##Men
-ma2m3mlow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
-                         family = binomial(link = "logit"),
-                         data = surv4mlow))
-summary(ma2m3mlow)
-
-##Women
-ma2m3flow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
-                         family = binomial(link = "logit"),
-                         data = surv4flow))
-summary(ma2m3flow)
-
-#Medium Education
-##Men
-ma2m3mmedium <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
-                            family = binomial(link = "logit"),
-                            data = surv4mmedium))
-summary(ma2m3mmedium)
-
-##Women
-ma2m3fmedium <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
-                            family = binomial(link = "logit"),
-                            data = surv4fmedium))
-summary(ma2m3fmedium)
-
-#High Education
-##Men
-ma2m3mhigh <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
-                          family = binomial(link = "logit"),
-                          data = surv4mhigh))
-summary(ma2m3mhigh)
-
-##Women
-ma2m3fhigh <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
-                          family = binomial(link = "logit"),
-                          data = surv4fhigh))
-summary(ma2m3fhigh)
-
-#Output
-a2modedu <- list(ma2m3mlow, ma2m3mmedium, ma2m3mhigh, ma2m3flow, ma2m3fmedium, ma2m3fhigh)
-cm2 <- c("t3" = "Time since Education",
-         "empstat2part time" = "Part-time",
-         "empstat2self-employed" = "Self-employed",
-         "empstat2unemployment" = "Unemployment",
-         "empstat2out of LF" = "Out of the LF",
-         # "difficultDifficult" = "Finding it difficult",
-         "worseWorse" = "Worse off",
-         "edulow" = "Low",
-         "edumedium" = "Medium",
-         "ol5catlow-skilled white-collar" = "Low-skilled White-collar",
-         "ol5cathigh-skilled blue collar" = "High-skilled Blue-collar",
-         "ol5catlow-skilled blue collar" = "Low-skilled Blue-collar",
-         "ol5catno info" = "No info",
-         "agemn" = "Age in Months",
-         "agesq" = "Age Squared",
-         "immigrant1"  = "Immigrant",
-         "combocohab-employed" = "Cohab - Employed",
-         "combocohab-non-employed" = "Cohab - Non-employed",
-         "combocohab-unknown" = "Cohab - Unknown",
-         "combomarried-employed" = "Married - Employed",
-         "combomarried-non-employed" = "Married - Non-employed",
-         "combomarried-unknown" = "Married - Unknown",
-         "cci" = "CCI")
-modelsummary(a2modedu, coef_map = cm2, output = "A2worse_edusubset_AME_S10-1_15-05-2022.html", stars = TRUE)
-
-# -------------------------------------------------------------------------
-# Education Subset - Analysis 3 Model 2 -----------------------------------
+# Education Subset - Analysis 4 Men -------------------------------------
 # -------------------------------------------------------------------------
 
 #Low Education
 ##Men
-ma3m2mlow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+###Model 1
+ma4m1mlow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
                          family = binomial(link = "logit"),
                          data = surv4mlow))
-summary(ma3m2mlow)
-
-##Women
-ma3m2flow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+summary(ma4m1mlow)
+###Model 2
+ma4m2mlow <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
                          family = binomial(link = "logit"),
-                         data = surv4flow))
-summary(ma3m2flow)
+                         data = surv4mlow))
+summary(ma4m2mlow)
 
 #Medium Education
 ##Men
-ma3m2mmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+###Model 1
+ma4m1mmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
                             family = binomial(link = "logit"),
                             data = surv4mmedium))
-summary(ma3m2mmedium)
-
-##Women
-ma3m2fmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+summary(ma4m1mmedium)
+###Model 2
+ma4m2mmedium <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
                             family = binomial(link = "logit"),
-                            data = surv4fmedium))
-summary(ma3m2fmedium)
+                            data = surv4mmedium))
+summary(ma4m2mmedium)
 
 #High Education
 ##Men
-ma3m2mhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+###Model 1
+ma4m1mhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo,
                           family = binomial(link = "logit"),
                           data = surv4mhigh))
-summary(ma3m2mhigh)
-
-##Women
-ma3m2fhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+summary(ma4m1mhigh)
+###Model 2
+ma4m2mhigh <- margins(glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
                           family = binomial(link = "logit"),
-                          data = surv4fhigh))
-summary(ma3m2fhigh)
+                          data = surv4mhigh))
+summary(ma4m2mhigh)
 
 #Output
-a3m2edu <- list(ma3m2mlow, ma3m2mmedium, ma3m2mhigh, ma3m2flow, ma3m2fmedium, ma3m2fhigh)
+a4modedu <- list(ma4m1mlow,ma4m2mlow,ma4m1mmedium,ma4m2mmedium,ma4m1mhigh,ma4m2mhigh)
 cm3 <- c("t3" = "Time since Education",
          "empstat2part time" = "Part-time",
          "empstat2self-employed" = "Self-employed",
          "empstat2unemployment" = "Unemployment",
          "empstat2out of LF" = "Out of the LF",
-         "difficultDifficult" = "Finding it difficult",
+         "difficultDifficult" = "Difficult",
+         # "worseWorse" = "Worse off",
+         "edulow" = "Low",
+         "edumedium" = "Medium",
+         "ol5catlow-skilled white-collar" = "Low-skilled White-collar",
+         "ol5cathigh-skilled blue collar" = "High-skilled Blue-collar",
+         "ol5catlow-skilled blue collar" = "Low-skilled Blue-collar",
+         "ol5catno info" = "No info",
+         "agemn" = "Age in Months",
+         "agesq" = "Age Squared",
+         "immigrant1"  = "Immigrant",
+         "cci" = "CCI", 
+         "combocohab-employed" = "Cohab - Employed",
+         "combocohab-non-employed" = "Cohab - Non-employed",
+         "combocohab-unknown" = "Cohab - Unknown",
+         "combomarried-employed" = "Married - Employed",
+         "combomarried-non-employed" = "Married - Non-employed",
+         "combomarried-unknown" = "Married - Unknown",
+         "incquinSecond" = "Second Quintile",
+         "incquinThird" = "Third Quintile",
+         "incquinFourth" = "Fourth Quintile",
+         "incquinFifth" = "Fifth Quintile")
+modelsummary(a4modedu, coef_map = cm3, output = "A4diff_menedusubset_AME_S10-1_23-05-2022.html", stars = TRUE)
+
+
+
+# -------------------------------------------------------------------------
+# Education Subset - Analysis 5 Women Worse -------------------------------
+# -------------------------------------------------------------------------
+
+#Low Education
+##Women
+###Model 1
+ma5m1flow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
+                         family = binomial(link = "logit"),
+                         data = surv4flow))
+summary(ma5m1flow)
+###Model 2
+ma5m2flow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                         family = binomial(link = "logit"),
+                         data = surv4flow))
+summary(ma5m2flow)
+
+#Medium Education
+##Women
+###Model 1
+ma5m1fmedium <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
+                            family = binomial(link = "logit"),
+                            data = surv4fmedium))
+summary(ma5m1fmedium)
+###Model 2
+ma5m2fmedium <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                            family = binomial(link = "logit"),
+                            data = surv4fmedium))
+summary(ma5m2fmedium)
+
+#High Education
+##Women
+###Model 1
+ma5m1fhigh <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
+                          family = binomial(link = "logit"),
+                          data = surv4fhigh))
+summary(ma5m1fhigh)
+###Model 2
+ma5m2fhigh <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                          family = binomial(link = "logit"),
+                          data = surv4fhigh))
+summary(ma5m2fhigh)
+
+#Output
+a5modedu <- list(ma5m1flow,ma5m2flow,ma5m1fmedium,ma5m2fmedium,ma5m1fhigh,ma5m2fhigh)
+cm3 <- c("t3" = "Time since Education",
+         "empstat2part time" = "Part-time",
+         "empstat2self-employed" = "Self-employed",
+         "empstat2unemployment" = "Unemployment",
+         "empstat2out of LF" = "Out of the LF",
+         # "difficultDifficult" = "Difficult",
          "worseWorse" = "Worse off",
          "edulow" = "Low",
          "edumedium" = "Medium",
@@ -253,37 +291,90 @@ cm3 <- c("t3" = "Time since Education",
          "agemn" = "Age in Months",
          "agesq" = "Age Squared",
          "immigrant1"  = "Immigrant",
-         "incquinSecond" = "Second Quintile",
-         "incquinThird" = "Third Quintile",
-         "incquinFourth" = "Fourth Quintile",
-         "incquinFifth" = "Fifth Quintile",
+         "cci" = "CCI",
          "combocohab-employed" = "Cohab - Employed",
          "combocohab-non-employed" = "Cohab - Non-employed",
          "combocohab-unknown" = "Cohab - Unknown",
          "combomarried-employed" = "Married - Employed",
          "combomarried-non-employed" = "Married - Non-employed",
          "combomarried-unknown" = "Married - Unknown",
-         "cci" = "CCI")
-modelsummary(a3m2edu, coef_map = cm3, output = "A3diffinc_edusubset_AME_S10-1_15-05-2022.html", stars = TRUE)
-
+         "incquinSecond" = "Second Quintile",
+         "incquinThird" = "Third Quintile",
+         "incquinFourth" = "Fourth Quintile",
+         "incquinFifth" = "Fifth Quintile")
+modelsummary(a5modedu, coef_map = cm3, output = "A5worse_womenedusubset_AME_S10-1_23-05-2022.html", stars = TRUE)
 
 # -------------------------------------------------------------------------
-# Education Subset - Analysis 3 Model 4 -----------------------------------
+# Education Subset - Analysis 6 Men Worse  --------------------------------
 # -------------------------------------------------------------------------
 
 #Low Education
 ##Men
-ma3m4mlow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+###Model 1
+ma4m1mlow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
                          family = binomial(link = "logit"),
                          data = surv4mlow))
-summary(ma3m4mlow)
-
-##Women
-ma3m4flow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+summary(ma4m1mlow)
+###Model 2
+ma4m2mlow <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
                          family = binomial(link = "logit"),
-                         data = surv4flow))
-summary(ma3m4flow)
+                         data = surv4mlow))
+summary(ma4m2mlow)
 
 #Medium Education
 ##Men
-ma3m4mmedium <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5
+###Model 1
+ma4m1mmedium <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
+                            family = binomial(link = "logit"),
+                            data = surv4mmedium))
+summary(ma4m1mmedium)
+###Model 2
+ma4m2mmedium <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                            family = binomial(link = "logit"),
+                            data = surv4mmedium))
+summary(ma4m2mmedium)
+
+#High Education
+##Men
+###Model 1
+ma4m1mhigh <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo,
+                          family = binomial(link = "logit"),
+                          data = surv4mhigh))
+summary(ma4m1mhigh)
+###Model 2
+ma4m2mhigh <- margins(glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + immigrant + ol5cat + cci + combo + incquin,
+                          family = binomial(link = "logit"),
+                          data = surv4mhigh))
+summary(ma4m2mhigh)
+
+#Output
+a4modedu <- list(ma4m1mlow,ma4m2mlow,ma4m1mmedium,ma4m2mmedium,ma4m1mhigh,ma4m2mhigh)
+cm3 <- c("t3" = "Time since Education",
+         "empstat2part time" = "Part-time",
+         "empstat2self-employed" = "Self-employed",
+         "empstat2unemployment" = "Unemployment",
+         "empstat2out of LF" = "Out of the LF",
+         # "difficultDifficult" = "Difficult",
+         "worseWorse" = "Worse off",
+         "edulow" = "Low",
+         "edumedium" = "Medium",
+         "ol5catlow-skilled white-collar" = "Low-skilled White-collar",
+         "ol5cathigh-skilled blue collar" = "High-skilled Blue-collar",
+         "ol5catlow-skilled blue collar" = "Low-skilled Blue-collar",
+         "ol5catno info" = "No info",
+         "agemn" = "Age in Months",
+         "agesq" = "Age Squared",
+         "immigrant1"  = "Immigrant",
+         "cci" = "CCI", 
+         "combocohab-employed" = "Cohab - Employed",
+         "combocohab-non-employed" = "Cohab - Non-employed",
+         "combocohab-unknown" = "Cohab - Unknown",
+         "combomarried-employed" = "Married - Employed",
+         "combomarried-non-employed" = "Married - Non-employed",
+         "combomarried-unknown" = "Married - Unknown",
+         "incquinSecond" = "Second Quintile",
+         "incquinThird" = "Third Quintile",
+         "incquinFourth" = "Fourth Quintile",
+         "incquinFifth" = "Fifth Quintile")
+modelsummary(a4modedu, coef_map = cm3, output = "A6worse_menedusubset_AME_S10-1_23-05-2022.html", stars = TRUE)
+
