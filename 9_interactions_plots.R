@@ -390,7 +390,7 @@ a3m8 <- glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + ol5cat + c
             data = surv4)
 
 
-#Partnership Analysis 1
+#Income Analysis 1
 cat_plot(a3m5, pred = incquin, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
@@ -409,12 +409,12 @@ cat_plot(a3m5, pred = incquin, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15, vjust = 0.1), legend.title = element_text(size = 15), axis.title.x = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
-  labs(title = "Partnership Status, Partners' Employment Status") +
+  labs(title = "Income Quintiles") +
   coord_flip()
 ggsave("a3m5_int_incquin_diff(color)S9_16-05-2022.png", dpi = 300)  
 
 
-#Partnership Analysis 2
+#Income Analysis 2
 cat_plot(a3m6, pred = incquin, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
@@ -433,7 +433,7 @@ cat_plot(a3m6, pred = incquin, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15, vjust = 0.1), legend.title = element_text(size = 15), axis.title.x = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
-  labs(title = "Partnership Status, Partners' Employment Status") +
+  labs(title = "Income Quintiles") +
   coord_flip()
 ggsave("a3m6_int_incquin_worse(color)S9_16-05-2022.png", dpi = 300)  
 
@@ -441,7 +441,7 @@ ggsave("a3m6_int_incquin_worse(color)S9_16-05-2022.png", dpi = 300)
 ##There are only very very slight differences between the predicted probabilities in Analysis 1 & 2
 ##The biggest differences are in the error bars
 
-#Partnership Analysis 3 - Difficult
+#Income Analysis 3 - Difficult
 cat_plot(a3m7, pred = incquin, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
@@ -460,12 +460,12 @@ cat_plot(a3m7, pred = incquin, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15, vjust = 0.1), legend.title = element_text(size = 15), axis.title.x = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
-  labs(title = "Partnership Status, Partners' Employment Status") +
+  labs(title = "Income Quintiles") +
   coord_flip()
 ggsave("a3m7_int_incquin_diffpart(color)S9_16-05-2022.png", dpi = 300)  
 
 
-#Partnership Analysis 3 - Worse
+#Income Analysis 3 - Worse
 cat_plot(a3m8, pred = incquin, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
@@ -484,7 +484,7 @@ cat_plot(a3m8, pred = incquin, modx = edu, mod2 = sex,
   theme(legend.position = "bottom", legend.background = element_blank(),legend.box.background = element_rect(colour = "black"),
         axis.text = element_text(size = 15, vjust = 0.1), legend.title = element_text(size = 15), axis.title.x = element_text(size = 15),
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
-  labs(title = "Partnership Status, Partners' Employment Status") +
+  labs(title = "Income Quintiles") +
   coord_flip()
 ggsave("a3m8_int_incquin_worsepart(color)S9_16-05-2022.png", dpi = 300) 
 

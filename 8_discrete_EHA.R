@@ -5,28 +5,10 @@
 # install.packages("interactions")
 # install.packages ("huxtable")
 
-# library(data.table)
-# library(padr)
 library(tidyverse)
-# library(haven)
-# library(lubridate)
-# library(arsenal)
-# library(zoo)
-# library(survival)
-# library(survminer)
-# library(survPen)
-# library(flexsurv)
-# library(coxme)
-# library(stargazer)
-# library(texreg)
-# library(forestplot)
 # library(sjPlot)
 library(janitor)
-# library(lme4)
-# library(survey)
 library(jtools)
-# library(ggstance)
-# library(broom.mixed)
 library(effects)
 library(interactions)
 library(huxtable) #needed for export_summs command
@@ -38,8 +20,6 @@ surv4 <- readRDS(surv4)
 surv4m <- surv4 %>% filter(sex == "Men")
 surv4f <- surv4 %>% filter(sex == "Women")
 
-surv4m %>% count(incquin)
-str(surv4m)
 
 ###########################################################################
 # Discrete Time Hazard Model ----------------------------------------------
@@ -77,6 +57,7 @@ a1m1m <- glm(formula = event ~ t3 + empstat2 + agemn + agesq + edu + ol5cat,
            family = binomial(link = "logit"),
            data = surv4m)
 summary(a1m1m)
+
 summ(a1m1m, exp = TRUE) #exp = TRUE means that we want exponentiated estimates
 plot_summs(a1m1m, exp = T)
 plot_model(a1m1m, type = "pred", terms = c("empstat2", "edu"))
