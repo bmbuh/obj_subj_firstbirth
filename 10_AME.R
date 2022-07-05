@@ -101,7 +101,7 @@ cm3 <- c("t3" = "Time since Education",
          "ol5catno info" = "No info",
          "agemn" = "Age in Months",
          "agesq" = "Age Squared",
-         "immigrant1"  = "Immigrant",
+         "immigrant"  = "Immigrant",
          "cci" = "CCI",
          "combocohab-employed" = "Cohab - Employed",
          "combocohab-non-employed" = "Cohab - Non-employed",
@@ -176,17 +176,17 @@ ma2m1f <- margins(a2m1f)
 summary(ma2m1f)
 plot_model(a2m1f, type = "pred", terms = "edu")
 
-#Empstat + Difficult
+#Empstat + Better
 ma2m2f <- margins(a2m2f)
 summary(ma2m2f)
 plot(ma2m2f)
 
-#Empstat + Difficult + Partner
+#Empstat + Better + Partner
 ma2m3f <- margins(a2m3f)
 summary(ma2m3f)
 plot(ma2m3f)
 
-#Empstat + Difficult + Partner + Incquin
+#Empstat + Better + Partner + Incquin
 ma2m4f <- margins(a3m4f)
 summary(ma2m4f)
 plot(ma2m4f)
@@ -198,7 +198,7 @@ cm4 <- c("t3" = "Time since Education",
          "empstat2unemployment" = "Unemployment",
          "empstat2out of LF" = "Out of the LF",
          # "difficultDifficult" = "Difficult",
-         "worseWorse" = "Worse",
+         "betterSame or worse" = "Same or worse",
          "edulow" = "Low",
          "edumedium" = "Medium",
          "ol5catlow-skilled white-collar" = "Low-skilled White-collar",
@@ -207,7 +207,7 @@ cm4 <- c("t3" = "Time since Education",
          "ol5catno info" = "No info",
          "agemn" = "Age in Months",
          "agesq" = "Age Squared",
-         "immigrant1"  = "Immigrant",
+         "immigrant"  = "Immigrant",
          "cci" = "CCI",
          "combocohab-employed" = "Cohab - Employed",
          "combocohab-non-employed" = "Cohab - Non-employed",
@@ -219,10 +219,10 @@ cm4 <- c("t3" = "Time since Education",
          "incquinThird" = "Third Quintile",
          "incquinFourth" = "Fourth Quintile",
          "incquinFifth" = "Fifth Quintile")
-modelsummary(a2modf, coef_map = cm4, output = "A2worse_Women_AME_S10_23-05-2022.html", stars = TRUE)
-a2worse_women <- modelsummary(a2modf, coef_map = cm4, output = "huxtable", stars = TRUE)
-quick_docx(a2worse_women, file = "a2worse_Women_AME_S10_23-05-2022.docx", open = FALSE)
-quick_xlsx(a2worse_women, file = "a2worse_Women_AME_S10_23-05-2022.xlsx", open = FALSE)
+modelsummary(a2modf, coef_map = cm4, output = "A2better_Women_AME_S10_30-06-2022.html", stars = TRUE)
+a2better_women <- modelsummary(a2modf, coef_map = cm4, output = "huxtable", stars = TRUE)
+quick_docx(a2better_women, file = "a2better_Women_AME_S10_30-06-2022.docx", open = FALSE)
+quick_xlsx(a2better_women, file = "a2better_Women_AME_S10_30-06-2022.xlsx", open = FALSE)
 
 # -------------------------------------------------------------------------
 # Analysis 2 Men ----------------------------------------------------------
@@ -233,34 +233,34 @@ ma2m1m <- margins(a2m1m)
 summary(ma2m1m)
 plot_model(a2m1m, type = "pred", terms = "edu")
 
-#Empstat + Difficult
+#Empstat + Better
 ma2m2m <- margins(a2m2m)
 summary(ma2m2m)
 plot(ma2m2m)
 
-#Empstat + Difficult + Partner
+#Empstat + Better + Partner
 ma2m3m <- margins(a2m3m)
 summary(ma2m3m)
 plot(ma2m3m)
 
-#Empstat + Difficult + Partner + Incquin
+#Empstat + Better + Partner + Incquin
 ma2m4m <- margins(a3m4m)
 summary(ma2m4m)
 plot(ma2m4m)
 
 #modelsummary gives me AME output (as matched with the summary command)
 a2modm <- list(ma2m1m,ma2m2m,ma2m3m,ma2m4m)
-modelsummary(a2modm, coef_map = cm4, output = "A2worse_Men_AME_S10_23-05-2022.html", stars = TRUE) 
-a2worse_men <- modelsummary(a2modm, coef_map = cm4, output = "huxtable", stars = TRUE)
-quick_docx(a2worse_men, file = "a2worse_men_AME_S10_23-05-2022.docx", open = FALSE)
-quick_xlsx(a2worse_men, file = "a2worse_men_AME_S10_23-05-2022.xlsx", open = FALSE)
+modelsummary(a2modm, coef_map = cm4, output = "A2better_Men_AME_S10_30-06-2022.html", stars = TRUE) 
+a2better_men <- modelsummary(a2modm, coef_map = cm4, output = "huxtable", stars = TRUE)
+quick_docx(a2better_men, file = "a2better_men_AME_S10_30-06-2022.docx", open = FALSE)
+quick_xlsx(a2better_men, file = "a2better_men_AME_S10_30-06-2022.xlsx", open = FALSE)
 
 # -------------------------------------------------------------------------
 # Analysis 2 Combined -----------------------------------------------------
 # -------------------------------------------------------------------------
 
 a2modb <- list(ma2m1f,ma2m2f,ma2m3f,ma2m4f,ma2m1m,ma2m2m,ma2m3m,ma2m4m)
-modelsummary(a2modb, coef_map = cm4, output = "A2worse_Both_AME_S10_23-05-2022.html", stars = TRUE) 
-a2worse_both <- modelsummary(a2modb, coef_map = cm4, output = "huxtable", stars = TRUE)
-quick_docx(a2worse_both, file = "a2worse_both_AME_S10_23-05-2022.docx", open = FALSE)
-quick_xlsx(a2worse_both, file = "a2worse_both_AME_S10_23-05-2022.xlsx", open = FALSE)
+modelsummary(a2modb, coef_map = cm4, output = "A2better_Both_AME_S10_30-06-2022.html", stars = TRUE) 
+a2better_both <- modelsummary(a2modb, coef_map = cm4, output = "huxtable", stars = TRUE)
+quick_docx(a2better_both, file = "a2better_both_AME_S10_30-06-2022.docx", open = FALSE)
+quick_xlsx(a2better_both, file = "a2better_both_AME_S10_30-06-2022.xlsx", open = FALSE)

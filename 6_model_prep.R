@@ -1,14 +1,7 @@
 #Coded by: Brian Buh
 #Started on: 25.02.2022
-#Last Updated: 16.05.2022
+#Last Updated: 30.06.2022
 
-# install.packages("lme4")
-# install.packages("survey")
-# install.packages("jtools")
-# install.packages("ggstance")
-# install.packages("joots") #for plotting visualisation of parameter effects
-# install.packages("broom.mixed")\
-# install.packages("effects")
 
 library(data.table)
 library(padr)
@@ -302,92 +295,8 @@ summary(surv3stats)
 # write2word(surv3stats, "surv3stats.doc")
 write2html(surv3stats, "surv3stats_25-02-2022.html") #UPDATE DATE
 
-###########################################################################
-# Dataframes for looking at ethnic/immigrant variance ---------------------
-###########################################################################
 
-# substat <- surv %>% 
-#   mutate(finnow.imp = fct_relevel(finnow.imp, c("5 Finding it very difficult", "4 Finding it quite difficult",
-#                                                 "3 Just getting by", "2 Doing alright", "1 Living comfortably"))) %>%
-#   mutate(finnow.num = as.numeric(finnow.imp)) %>% 
-#   #I change the scale of finfut to be centered at 0
-#   mutate(finfut.imp = fct_relevel(finfut.imp, c( "Worse off", "About the same", "Better off"))) %>% 
-#   mutate(finfut.num = as.numeric(finfut.imp)) %>% 
-#   mutate(finfut.num = recode(finfut.num,
-#                              "2" = "0",
-#                              "1" = "-1",
-#                              "3" = "1")) %>% 
-#   mutate(finfut.num = as.integer(finfut.num)) %>% 
-#   fill(jbsec, .direction = "downup") %>% #Note this si done for quick testing on the past slide. Consider its use!!!
-#   mutate(jbsec = fct_relevel(jbsec, c("3 non-employed", "1 likely", "2 unlikely"))) %>%
-#   mutate(jbsec2 = as.numeric(jbsec))
-# 
-# str(substat)
-# 
-# surv3 <- surv2 %>% 
-#   mutate(gor_dv = as.character(gor_dv)) %>% 
-#   #Create categories for ethnicity based on Kulu&Hannemann2016
-#   mutate(ethnic = ifelse(racel_dv == 1, 1, #english, scottish, welsh, ni
-#                          ifelse(racel_dv == 2 | racel_dv == 3 | racel_dv == 4, 2, #other white
-#                                 ifelse(racel_dv == 9, 3, #indian
-#                                        ifelse(racel_dv == 10, 4, #pakistani
-#                                               ifelse(racel_dv == 11, 5, #bangladeshi
-#                                                      ifelse(racel_dv == 14, 7, #carribean
-#                                                             ifelse(racel_dv == 12 | racel_dv == 13, 6, #other asian
-#                                                                    ifelse(racel_dv == 15, 8, 9))))))))) %>% #african or other
-#   mutate(ethnic = as.character(ethnic)) %>%  
-#   mutate(ethnic = recode(ethnic,
-#                          "1" = "UK",
-#                          "2" = "Other White",
-#                          "3" = "Indian",
-#                          "4" = "Pakistani",
-#                          "5" = "Bangladeshi",
-#                          "6" = "Other Asian",
-#                          "7" = "Caribbean",
-#                          "8" = "African",
-#                          "9" = "Mixed/Other")) %>%
-#   mutate(ethnic = fct_relevel(ethnic, c( "UK",
-#                                          "Other White",
-#                                          "Indian",
-#                                          "Pakistani",
-#                                          "Bangladeshi",
-#                                          "Other Asian",
-#                                          "Caribbean",
-#                                          "African",
-#                                          "Mixed/Other"))) %>% 
-#   mutate(gen = ifelse(generation == 1, 1, 2)) %>% #Creates a binary of immigrants versus born UK
-#   mutate(gen = recode(gen,
-#                       "1" = "First Generation",
-#                       "2" = "UK Born")) %>% 
-#   mutate(gen = as.character(gen)) %>% 
-#   unite(genethnic, ethnic, gen,  sep = "-", remove = FALSE) %>% 
-#   unite(sexethnic, sex, ethnic, sep = "-", remove = FALSE) %>% 
-#   unite(ethnicsex, ethnic, sex, sep = "-", remove = FALSE) %>% 
-#   mutate(gor_dv = recode(gor_dv,
-#                          "1" = "North East",
-#                          "2" = "North West",
-#                          "3" = "Yorkshire and Humberside",
-#                          "4" = "East Midlands",
-#                          "5" = "West Midlands",
-#                          "6" = "East of England",
-#                          "7" = "London",
-#                          "8" = "South East",
-#                          "9" = "South West",
-#                          "10" = "Wales",
-#                          "11" = "Scotland",
-#                          "12" = "Northern Ireland",
-#                          "-9" = "missing"))
-# 
-# 
-# str(surv3)
-# 
-# surv4 <- surv3 %>% 
-#   filter(t2 > 400, event == 1)
-# 
-# surv4 %>% 
-#   count(event)
-# 
-# 
+
 ###########################################################################
 # Graphing relationship of Hazard, Time & Covariate -----------------------
 ###########################################################################
@@ -469,83 +378,7 @@ surv3 %>%
   geom_smooth() +
   facet_wrap(~sex)
 
-# #Fit of Time since Edu and finnow
-# survm %>%
-#   group_by(t2, finnow.imp) %>%
-#   summarise(event = sum(event),
-#             total = n()) %>%
-#   mutate(hazard = event/total) %>%
-#   ggplot(aes(x = t2,
-#              y = log(-log(1-hazard)),
-#              col = finnow.imp)) +
-#   geom_point() +
-#   geom_smooth()
 
-# -------------------------------------------------------------------------
-# Imputing missing part time ----------------------------------------------
-# -------------------------------------------------------------------------
-# 
-# THIS DOESN'T WORK!!!!
-
-
-# surv3cut <- surv3 %>% 
-#   select(pidp, sex, dvage, edu) %>% 
-#   distinct(pidp, .keep_all = TRUE)
-# 
-# 
-# #creates a wide format for the "parttime" variable
-# wide_pt <- surv3 %>%
-#   # rename("wave" = "waveck") %>%
-#   select(pidp, wave, parttime) %>%
-#   # mutate(jbstat = as.numeric(jbstat))
-#   # mutate(finnow = as.factor(finnow)) %>%
-#   mutate(wn = "w") %>%
-#   unite(wavenum, wn, wave, sep = "", remove = TRUE) %>%
-#   pivot_wider(names_from = wavenum, values_from = parttime) %>%
-#   left_join(., surv3cut, by = "pidp")
-# 
-# 
-# #First, testing variables
-# md.pattern(wide_pt, plot = FALSE) #looks at the pattern of missing values
-# flux(wide_pt)[,1:3]
-# fluxplot(wide_pt) #Creates a plot to look at influx and outflux coefficents
-# 
-# #First Imputation of finnow
-# imp <-  mice(wide_pt, m = 5, method = ("polr"))
-# densityplot(imp)
-# fit <- with(imp, glm(sex ~ w1 + w2 + w3 + w4 + w5 + w6 + w7 + w8 + w9 + w10, family = binomial(link = "logit")))
-# summary(pool(fit))
-# 
-# #In order to pick the best imputation you need to see the results of the analytical model
-# #The following codes add in confidence intervals
-# summary(pool(fit), conf.int = TRUE, exponentiate = TRUE)
-# 
-# imp$predictorMatrix
-# 
-# 
-# #After examining the analytical results, the best fit imputation set is number 4
-# imp_wide_pt = complete(imp, 4)
-# 
-# imp_pt <- imp_wide_pt %>%
-#   dplyr::select(-sex, -dvage, -edu) %>%
-#   pivot_longer(cols = c("w1", "w2", "w3", "w4", "w5", "w6", "w7", "w8", "w9", "w10"), names_to = "wavename", values_to = "pt.imp") %>%
-#   group_by(pidp) %>%
-#   mutate(wave = row_number()) %>%
-#   ungroup() %>%
-#   dplyr::select(-wavename)
-# 
-# surv3 %>% count(parttime)
-# imp_pt %>% count(pt.imp)
-# 
-# imp_pt %>%
-#   ggplot(aes(pt.imp)) +
-#   geom_bar() +
-#   scale_fill_brewer(palette = "Dark2") +
-#   theme(aspect.ratio = 1)
-# 
-# saveRDS(imp_pt, file = "imp_pt.rds")
-# imp_pt <- file.choose()
-# imp_pt <- readRDS(imp_pt)
 
 ############################################################################
 # Cleaning DF -------------------------------------------------------------
@@ -689,6 +522,7 @@ surv4 <- surv3 %>%
   unite(empfinnow, empstat2, finnow3cat, sep = "-", remove = FALSE) %>% 
   unite(empfinfut, empstat2, finfut.imp, sep = "-", remove = FALSE) %>%
   mutate(worse = ifelse(finfut.imp == "Worse off", "Worse", "Same or better")) %>%
+  mutate(better = ifelse(finfut.imp == "Better off", "Better", "Same or worse")) %>%
   unite(empworse, empstat2, worse, sep = "-", remove = FALSE) %>%
   mutate(difficult = ifelse(finnow.num <= 3, "Difficult", "Fine")) %>%
   unite(empdiff, empstat2, difficult, sep = "-", remove = FALSE) %>%
@@ -718,40 +552,15 @@ surv4 <- surv3 %>%
                              "low" = "a",
                              "medium" = "b",
                              "high" = "c"))
-  
-test <- surv4 %>%
-  select(pidp, wave, empstat2, empstat_t1, oecdeq4, incquin)
-surv4 %>% count(edualpha)
-str(surv4)
-#   
-# 
-# surv4 %>% count(difficult)
-# surv4 %>% count(difficultv2)
-# surv4 %>% count(is.na(oecdeq4)) #There are 4154 NA in the hhinc variable (resolved using imputation, without 76 observations)
+
 saveRDS(surv4, file = "surv4.rds")
-# 
-# surv4 %>% count(jbstat)
-# surv4 %>% count(empstat)
-# surv4 %>% count(empstat2)
-# surv4 %>% count(occlevel)
-# surv4 %>% count(ol5cat)
-# 
-# table1 <- surv4 %>% count(empstat2, ol5cat)
-# table2 <- surv4 %>% count(empstat2, permcon)
-# table3 <- surv4 %>% count(empstat2, pt2)
-# 
-# surv4 %>% 
-#   mutate(pt2 = as.character(pt2)) %>% 
-#   filter(!is.na(pt2)) %>% 
-#   ggplot(aes(x = agemn, fill = pt2), position = fill) +
-#   geom_bar()
 
 # -------------------------------------------------------------------------
 # Descriptive statistics of the sample Section "5. Measures" --------------
 # -------------------------------------------------------------------------
 
 mycontrols <- tableby.control(test = FALSE)
-surv4stats <-arsenal::tableby(sexedu ~ empstat2 + difficult + worse + age + immigrant + ol5cat + combo + incquin, data = surv4, control = mycontrols)
+surv4stats <-arsenal::tableby(sexedu ~ empstat2 + difficult + better + age + immigrant + ol5cat + combo + incquin, data = surv4, control = mycontrols)
 labels(surv4stats) <-  c(sex = "Sex", eventfct = "First Birth", age = "Age",
                          empstat2 = "Activity Status", difficult = "Present Financial Outlook", worse = "Future Financial Outlook",
                          edu = "Educational Attainment", combo = "Partnership, Partner's Job Status", immigrant = "UK Born",
@@ -771,7 +580,6 @@ write2html(surv4stats2, "surv4stats2_03-03-2022.html") #UPDATE DATE
 ### Stats for the section "4. Data and Sample"  and "5. Measures ---------------
 # ------------------------------------------------------------------------------
 
-surv2 %>% count(edu)
 
 #Count number of individuals
 surv4stat <- surv4 %>% 
@@ -818,24 +626,6 @@ surv4 %>%
   xlab("Years since end of formal education") +
   ylab("") +
   ggsave("distribution_event_t3_21-03-2022.png", dpi = 300)
-
-test2 <- surv4 %>% 
-  filter(t2 >= 480)
-  
-
-# chart <- surv4 %>% count(jbstat, parttime)
-# chart2 <- surv3 %>% count(jbstat, permcon)
-
-table <- surv4 %>% 
-  tabyl(jbstat, parttime) %>% 
-  adorn_percentages("row") %>%
-  adorn_pct_formatting()
-
-
-#Code for creating a cohort variable
-# mutate(cohort2 = ifelse(byr <= 1975, "<=1975", ifelse(byr >= 1990, ">=1990", "1976-1989"))) %>% 
-#   mutate(cohort2 = as.character(cohort2)) %>% 
-#   mutate(cohort2 = fct_relevel(cohort2, c("1976-1989", "<=1975", ">=1990"))) %>% 
 
 
 

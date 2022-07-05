@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
 #Started on: 18.05.2022
-#Last Updated: 
+#Last Updated: 30.06.2022
 
 ### This script mirrors Script "9_interaction_plots" with the only change being the color of the output
 
@@ -160,21 +160,21 @@ ggsave("a1m3_int_difficult_edu_partner(mono)S9_16-05-2022.png", dpi = 300)
 ###########################################################################
 
 # -------------------------------------------------------------------------
-# Analysis 2 worse --------------------------------------------------------
+# Analysis 2 better --------------------------------------------------------
 # -------------------------------------------------------------------------
 
-a2m2 <- glm(formula = event ~ t3 + empstat2*sex*edu + sex*worse*edu + agemn + agesq + ol5cat + cci + immigrant,
+a2m2 <- glm(formula = event ~ t3 + empstat2*sex*edu + sex*better*edu + agemn + agesq + ol5cat + cci + immigrant,
             family = binomial(link = "logit"),
             data = surv4)
 summary(margins(a1m2))
 
-cat_plot(a2m2, pred = worse, modx = edu, mod2 = sex,
+cat_plot(a2m2, pred = better, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
          geom.alpha = 1,
          dodge.width = 0.4,
          errorbar.width = 0.25,
-         pred.values = c("Worse", "Same or better"),
+         pred.values = c("Same or worse", "Better"),
          modx.values = c("low", "medium", "high"),
          modx.labels = c("Low", "Medium", "High"),
          mod2.values = c("Women", "Men"),          
@@ -189,24 +189,24 @@ cat_plot(a2m2, pred = worse, modx = edu, mod2 = sex,
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
   labs(title = "Future Financial Security") + 
   coord_flip()
-ggsave("a2m2_int_worse_edu_(mono)S9_16-05-2022.png", dpi = 300)
+ggsave("a2m2_int_better_edu_(mono)S9_30-06-2022.png", dpi = 300)
 
 # -------------------------------------------------------------------------
-# Analysis 2 worse + partnership ------------------------------------------
+# Analysis 2 better + partnership ------------------------------------------
 # -------------------------------------------------------------------------
 
-a2m3 <- glm(formula = event ~ t3 + empstat2*sex*edu + sex*worse*edu + agemn + agesq + ol5cat + cci + immigrant + combo,
+a2m3 <- glm(formula = event ~ t3 + empstat2*sex*edu + sex*better*edu + agemn + agesq + ol5cat + cci + immigrant + combo,
             family = binomial(link = "logit"),
             data = surv4)
 summary(margins(a2m3))
 
-cat_plot(a2m3, pred = worse, modx = edu, mod2 = sex,
+cat_plot(a2m3, pred = better, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
          geom.alpha = 1,
          dodge.width = 0.4,
          errorbar.width = 0.25,
-         pred.values = c("Worse", "Same or better"),
+         pred.values = c("Same or worse", "Better"),
          modx.values = c("low", "medium", "high"),
          modx.labels = c("Low", "Medium", "High"),
          mod2.values = c("Women", "Men"),          
@@ -221,7 +221,7 @@ cat_plot(a2m3, pred = worse, modx = edu, mod2 = sex,
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
   labs(title = "Future Financial Security") + 
   coord_flip()
-ggsave("a2m3_int_worse_edu_partner(mono)S9_16-05-2022.png", dpi = 300)  
+ggsave("a2m3_int_better_edu_partner(mono)S9_30-06-2022.png", dpi = 300)  
 
 
 ###########################################################################
@@ -235,7 +235,7 @@ a1m4 <- glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + ol5cat
             family = binomial(link = "logit"),
             data = surv4)
 
-a2m4 <- glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + ol5cat + cci + immigrant + combo*sex*edu,
+a2m4 <- glm(formula = event ~ t3 + empstat2 + better + agemn + agesq + ol5cat + cci + immigrant + combo*sex*edu,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -243,7 +243,7 @@ a3m2 <- glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + ol5cat
             family = binomial(link = "logit"),
             data = surv4)
 
-a3m4 <- glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + ol5cat + cci + immigrant + combo*sex*edu + incquin,
+a3m4 <- glm(formula = event ~ t3 + empstat2 + better + agemn + agesq + ol5cat + cci + immigrant + combo*sex*edu + incquin,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -296,7 +296,7 @@ cat_plot(a2m4, pred = combo, modx = edu, mod2 = sex,
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
   labs(title = "Partnership Status, Partners' Employment Status") +
   coord_flip()
-ggsave("a2m4_int_partnership_worse(mono)S9_16-05-2022.png", dpi = 300)  
+ggsave("a2m4_int_partnership_better(mono)S9_16-05-2022.png", dpi = 300)  
 
 
 ##There are only very very slight differences between the predicted probabilities in Analysis 1 & 2
@@ -328,7 +328,7 @@ cat_plot(a3m2, pred = combo, modx = edu, mod2 = sex,
 ggsave("a3m2_int_partnership_diffinc(mono)S9_16-05-2022.png", dpi = 300)  
 
 
-#Partnership Analysis 3 - Worse
+#Partnership Analysis 3 - better
 cat_plot(a3m4, pred = combo, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
@@ -351,7 +351,7 @@ cat_plot(a3m4, pred = combo, modx = edu, mod2 = sex,
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
   labs(title = "Partnership Status, Partners' Employment Status") +
   coord_flip()
-ggsave("a3m4_int_partnership_worseinc(mono)S9_16-05-2022.png", dpi = 300)  
+ggsave("a3m4_int_partnership_betterinc(mono)S9_16-05-2022.png", dpi = 300)  
 
 ##Surprisingly, adding income really does very very little to change the predicted probabilities
 ##The biggest differences are in the error bars
@@ -367,7 +367,7 @@ a3m5 <- glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + ol5cat
             family = binomial(link = "logit"),
             data = surv4)
 
-a3m6 <- glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + ol5cat + cci + immigrant + incquin*sex*edu,
+a3m6 <- glm(formula = event ~ t3 + empstat2 + better + agemn + agesq + ol5cat + cci + immigrant + incquin*sex*edu,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -375,7 +375,7 @@ a3m7 <- glm(formula = event ~ t3 + empstat2 + difficult + agemn + agesq + ol5cat
             family = binomial(link = "logit"),
             data = surv4)
 
-a3m8 <- glm(formula = event ~ t3 + empstat2 + worse + agemn + agesq + ol5cat + cci + immigrant + combo + incquin*sex*edu,
+a3m8 <- glm(formula = event ~ t3 + empstat2 + better + agemn + agesq + ol5cat + cci + immigrant + combo + incquin*sex*edu,
             family = binomial(link = "logit"),
             data = surv4)
 
@@ -427,7 +427,7 @@ cat_plot(a3m6, pred = incquin, modx = edu, mod2 = sex,
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
   labs(title = "Partnership Status, Partners' Employment Status") +
   coord_flip()
-ggsave("a3m6_int_incquin_worse(mono)S9_16-05-2022.png", dpi = 300)  
+ggsave("a3m6_int_incquin_better(mono)S9_16-05-2022.png", dpi = 300)  
 
 
 ##There are only very very slight differences between the predicted probabilities in Analysis 1 & 2
@@ -458,7 +458,7 @@ cat_plot(a3m7, pred = incquin, modx = edu, mod2 = sex,
 ggsave("a3m7_int_incquin_diffpart(mono)S9_16-05-2022.png", dpi = 300)  
 
 
-#Partnership Analysis 3 - Worse
+#Partnership Analysis 3 - better
 cat_plot(a3m8, pred = incquin, modx = edu, mod2 = sex,
          point.size = 2,
          line.thickness = 0.8,
@@ -480,7 +480,7 @@ cat_plot(a3m8, pred = incquin, modx = edu, mod2 = sex,
         legend.text = element_text(size = 15), strip.text.x = element_text(size = 15), plot.title = element_text(size = 15)) +
   labs(title = "Partnership Status, Partners' Employment Status") +
   coord_flip()
-ggsave("a3m8_int_incquin_worsepart(mono)S9_16-05-2022.png", dpi = 300) 
+ggsave("a3m8_int_incquin_betterpart(mono)S9_16-05-2022.png", dpi = 300) 
 
 ##Surprisingly, adding partnership does not change the relationship of the variable, but lowers the Predicted Probabilities
 
