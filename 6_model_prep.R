@@ -1,6 +1,6 @@
 #Coded by: Brian Buh
 #Started on: 25.02.2022
-#Last Updated: 30.06.2022
+#Last Updated: 22.07.2022
 
 
 library(data.table)
@@ -551,7 +551,10 @@ surv4 <- surv3 %>%
          edualpha = recode(edu, #This is need in Script 9 for plot_model
                              "low" = "a",
                              "medium" = "b",
-                             "high" = "c"))
+                             "high" = "c"),
+         marstat = fct_relevel(marstat, c("single",
+                                          "cohab",
+                                          "married")))
 
 saveRDS(surv4, file = "surv4.rds")
 
